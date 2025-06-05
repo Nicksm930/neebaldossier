@@ -1,10 +1,17 @@
 "use client";
 
 import axios from "axios";
+import { useRouter } from "next/navigation";
 
 import { useState } from "react";
 
+
+// Simulate a delay (Optional, to showcase progress bar for demo purposes)
+const simulateDelay = (ms: number) =>
+  new Promise((resolve) => setTimeout(resolve, ms));
+
 export default function CreateDossier({ userId }: { userId: string }) {
+  const router=useRouter()
   const [mode, setMode] = useState<"upload" | "form">("upload");
   const [formData, setFormData] = useState({
     dossierTitle: "",
@@ -12,7 +19,7 @@ export default function CreateDossier({ userId }: { userId: string }) {
     companyName: "",
     region: "",
     owner_id: userId,
-    modules: {
+    module_summaries: {
       module1: "",
       module2: "",
       module3: "",
@@ -22,6 +29,8 @@ export default function CreateDossier({ userId }: { userId: string }) {
   });
 
   const [fullDossierFile, setFullDossierFile] = useState<File | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<number>(0); // <-- progress % tracker
+  const [isUploading, setIsUploading] = useState<boolean>(false); // <-- show/hide progress bar
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,8 +42,8 @@ export default function CreateDossier({ userId }: { userId: string }) {
   ) => {
     setFormData({
       ...formData,
-      modules: {
-        ...formData.modules,
+      module_summaries: {
+        ...formData.module_summaries,
         [module]: e.target.value,
       },
     });
@@ -44,17 +53,16 @@ export default function CreateDossier({ userId }: { userId: string }) {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
       const allowedTypes = [
-        "application/pdf", // .pdf
-        "application/msword", // .doc
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-        "text/plain", // .txt
+        "application/pdf",
+        "application/msword",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        "text/plain",
       ];
       if (!allowedTypes.includes(file.type)) {
         alert("Only PDF, DOC, DOCX, or TXT files are allowed.");
         return;
       }
       if (file.size > 50 * 1024 * 1024) {
-        // 50MB for full dossier
         alert("File size should be less than 50MB.");
         return;
       }
@@ -62,27 +70,25 @@ export default function CreateDossier({ userId }: { userId: string }) {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (mode === "upload" && !fullDossierFile) {
       alert("Please upload your complete dossier PDF.");
       return;
     }
+
     if (mode === "form") {
-      // Check if all modules are filled
-      for (const key in formData.modules) {
-        if (!formData.modules[key as keyof typeof formData.modules]) {
+      for (const key in formData.module_summaries) {
+        if (
+          !formData.module_summaries[
+            key as keyof typeof formData.module_summaries
+          ]
+        ) {
           alert(`Please fill in ${key} information.`);
           return;
         }
       }
-    }
-
-    // Send data to server here
-    console.log("Form Mode:", mode);
-    console.log("Form Data:", formData);
-    if (fullDossierFile) {
-      console.log("Full Dossier File:", fullDossierFile);
     }
 
     const formPayload = new FormData();
@@ -90,33 +96,63 @@ export default function CreateDossier({ userId }: { userId: string }) {
     formPayload.append("product_name", formData.productName);
     formPayload.append("company_name", formData.companyName);
     formPayload.append("region", formData.region);
-    formPayload.append("owner_id", String(formData.owner_id)); // owner_id must be string
+    formPayload.append("owner_id", String(formData.owner_id));
+    formPayload.append("department", "Regulatory Affairs");
     if (fullDossierFile) {
-      formPayload.append("file", fullDossierFile); // Attach the file
+      formPayload.append("file", fullDossierFile);
     }
 
-    axios
-      .post(`${process.env.NEXT_PUBLIC_API_URL}/documents/`, formPayload, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      })
-      .then((response) => {
-        console.log("responseObj", response.data);
-        alert("Dossier Created Successfully!");
-      })
-      .catch((error) => {
-        console.log("error", error);
-        alert("Something went wrong!");
-      });
-    alert("Dossier Created Successfully!");
+    try {
+      setIsUploading(true); // show progress bar
+
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/documents/`,
+        formPayload,
+        {
+          headers: {
+            "Content-Type": "multimultipart/form-data",
+          },
+          onUploadProgress: (progressEvent) => {
+            const percentCompleted = Math.round(
+              (progressEvent.loaded * 100) / (progressEvent.total || 1)
+            );
+            setUploadProgress(percentCompleted);
+            console.log(`Upload Progress: ${percentCompleted}%`);
+          },
+        }
+      );
+
+      // await simulateDelay(1000); // Simulate network delay
+
+      console.log("responseObj", response.data);
+      localStorage.setItem("dossierData", JSON.stringify(response.data));
+
+      alert("Dossier Created Successfully!");
+      router.push(`/user/${userId}/preview`);
+    } catch (error) {
+      console.error("error", error);
+      alert("Something went wrong!");
+    } finally {
+      setIsUploading(false); // hide progress bar
+      setUploadProgress(0); // reset
+    }
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg">
+    <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg relative">
       <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">
         Create New Dossier
       </h1>
+
+      {/* Progress Bar */}
+      {isUploading && (
+        <div className="w-full bg-gray-200 h-2 rounded overflow-hidden mb-6">
+          <div
+            className="bg-blue-500 h-full transition-all duration-300"
+            style={{ width: `${uploadProgress}%` }}
+          ></div>
+        </div>
+      )}
 
       {/* Mode Switch */}
       <div className="flex justify-center mb-8">
@@ -240,7 +276,9 @@ export default function CreateDossier({ userId }: { userId: string }) {
                 <textarea
                   name={mod.name}
                   value={
-                    formData.modules[mod.name as keyof typeof formData.modules]
+                    formData.module_summaries[
+                      mod.name as keyof typeof formData.module_summaries
+                    ]
                   }
                   onChange={(e) => handleModuleChange(e, mod.name)}
                   required
