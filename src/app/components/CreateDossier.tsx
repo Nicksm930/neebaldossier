@@ -1,14 +1,17 @@
 "use client";
 
+import axios from "axios";
+
 import { useState } from "react";
 
-export default function CreateDossier() {
+export default function CreateDossier({ userId }: { userId: string }) {
   const [mode, setMode] = useState<"upload" | "form">("upload");
   const [formData, setFormData] = useState({
     dossierTitle: "",
     productName: "",
     companyName: "",
     region: "",
+    owner_id: userId,
     modules: {
       module1: "",
       module2: "",
@@ -24,7 +27,10 @@ export default function CreateDossier() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleModuleChange = (e: React.ChangeEvent<HTMLTextAreaElement>, module: string) => {
+  const handleModuleChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+    module: string
+  ) => {
     setFormData({
       ...formData,
       modules: {
@@ -37,11 +43,18 @@ export default function CreateDossier() {
   const handleFullFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
-      if (file.type !== "application/pdf") {
-        alert("Only PDF files are allowed.");
+      const allowedTypes = [
+        "application/pdf", // .pdf
+        "application/msword", // .doc
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
+        "text/plain", // .txt
+      ];
+      if (!allowedTypes.includes(file.type)) {
+        alert("Only PDF, DOC, DOCX, or TXT files are allowed.");
         return;
       }
-      if (file.size > 50 * 1024 * 1024) { // 50MB for full dossier
+      if (file.size > 50 * 1024 * 1024) {
+        // 50MB for full dossier
         alert("File size should be less than 50MB.");
         return;
       }
@@ -71,25 +84,60 @@ export default function CreateDossier() {
     if (fullDossierFile) {
       console.log("Full Dossier File:", fullDossierFile);
     }
+
+    const formPayload = new FormData();
+    formPayload.append("title", formData.dossierTitle);
+    formPayload.append("product_name", formData.productName);
+    formPayload.append("company_name", formData.companyName);
+    formPayload.append("region", formData.region);
+    formPayload.append("owner_id", String(formData.owner_id)); // owner_id must be string
+    if (fullDossierFile) {
+      formPayload.append("file", fullDossierFile); // Attach the file
+    }
+
+    axios
+      .post(`${process.env.NEXT_PUBLIC_API_URL}/documents/`, formPayload, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => {
+        console.log("responseObj", response.data);
+        alert("Dossier Created Successfully!");
+      })
+      .catch((error) => {
+        console.log("error", error);
+        alert("Something went wrong!");
+      });
     alert("Dossier Created Successfully!");
   };
 
   return (
     <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">Create New Dossier</h1>
+      <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+        Create New Dossier
+      </h1>
 
       {/* Mode Switch */}
       <div className="flex justify-center mb-8">
         <button
           type="button"
-          className={`px-6 py-2 rounded-l-lg ${mode === "upload" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+          className={`px-6 py-2 rounded-l-lg ${
+            mode === "upload"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-800"
+          }`}
           onClick={() => setMode("upload")}
         >
           Upload Full Dossier
         </button>
         <button
           type="button"
-          className={`px-6 py-2 rounded-r-lg ${mode === "form" ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-800"}`}
+          className={`px-6 py-2 rounded-r-lg ${
+            mode === "form"
+              ? "bg-blue-600 text-white"
+              : "bg-gray-200 text-gray-800"
+          }`}
           onClick={() => setMode("form")}
         >
           Create via Form
@@ -100,7 +148,9 @@ export default function CreateDossier() {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Info */}
         <div>
-          <label className="block mb-2 font-semibold text-gray-700">Dossier Title</label>
+          <label className="block mb-2 font-semibold text-gray-700">
+            Dossier Title
+          </label>
           <input
             type="text"
             name="dossierTitle"
@@ -113,7 +163,9 @@ export default function CreateDossier() {
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-gray-700">Product Name</label>
+          <label className="block mb-2 font-semibold text-gray-700">
+            Product Name
+          </label>
           <input
             type="text"
             name="productName"
@@ -126,7 +178,9 @@ export default function CreateDossier() {
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-gray-700">Company Name</label>
+          <label className="block mb-2 font-semibold text-gray-700">
+            Company Name
+          </label>
           <input
             type="text"
             name="companyName"
@@ -139,7 +193,9 @@ export default function CreateDossier() {
         </div>
 
         <div>
-          <label className="block mb-2 font-semibold text-gray-700">Region / Country</label>
+          <label className="block mb-2 font-semibold text-gray-700">
+            Region / Country
+          </label>
           <input
             type="text"
             name="region"
@@ -154,10 +210,12 @@ export default function CreateDossier() {
         {/* Conditional Rendering */}
         {mode === "upload" ? (
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">Upload Complete Dossier (PDF)</label>
+            <label className="block mb-2 font-semibold text-gray-700">
+              Upload Complete Dossier (PDF)
+            </label>
             <input
               type="file"
-              accept="application/pdf"
+              accept=".pdf, .doc, .docx, .txt"
               onChange={handleFullFileChange}
               className="w-full border border-gray-300 p-2 rounded-lg"
               required
@@ -166,17 +224,24 @@ export default function CreateDossier() {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {[
-              { label: "Module 1: Administrative and Product Information", name: "module1" },
+              {
+                label: "Module 1: Administrative and Product Information",
+                name: "module1",
+              },
               { label: "Module 2: Summaries", name: "module2" },
               { label: "Module 3: Quality", name: "module3" },
               { label: "Module 4: Nonclinical Study Reports", name: "module4" },
               { label: "Module 5: Clinical Study Reports", name: "module5" },
             ].map((mod) => (
               <div key={mod.name}>
-                <label className="block mb-2 font-semibold text-gray-700">{mod.label}</label>
+                <label className="block mb-2 font-semibold text-gray-700">
+                  {mod.label}
+                </label>
                 <textarea
                   name={mod.name}
-                  value={formData.modules[mod.name as keyof typeof formData.modules]}
+                  value={
+                    formData.modules[mod.name as keyof typeof formData.modules]
+                  }
                   onChange={(e) => handleModuleChange(e, mod.name)}
                   required
                   className="w-full border border-gray-300 p-3 rounded-lg min-h-[150px]"
