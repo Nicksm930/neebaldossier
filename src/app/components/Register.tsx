@@ -1,4 +1,5 @@
-import { createUser } from "../(auth)/register/page";
+
+import { createUser } from "../actions/UserAction";
 import { Submit } from "./Submit";
 
 const Register = () => {
