@@ -2,7 +2,18 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation"; // 🆕 Import useRouter
-
+export type IDossier = {
+  id: string;
+  title: string;
+  productName: string;
+  companyName: string;
+  region: string;
+  createdAt: string;
+  aiReviewStatus: string;
+  auditorReviewStatus: string;
+  aiRegulatoryReport: string;
+  aiClinicalReport: string;
+};
 // Dummy Data (Replace this with your fetched DB data)
 const dummyDossiers = [
   {
@@ -14,8 +25,10 @@ const dummyDossiers = [
     createdAt: "2025-06-04",
     aiReviewStatus: "Pending",
     auditorReviewStatus: "Approved",
-    aiRegulatoryReport: "This is the AI-generated regulatory report for Paracetamol.",
-    aiClinicalReport: "This is the AI-generated clinical report for Paracetamol.",
+    aiRegulatoryReport:
+      "This is the AI-generated regulatory report for Paracetamol.",
+    aiClinicalReport:
+      "This is the AI-generated clinical report for Paracetamol.",
   },
   {
     id: "2",
@@ -26,8 +39,10 @@ const dummyDossiers = [
     createdAt: "2025-05-28",
     aiReviewStatus: "Approved",
     auditorReviewStatus: "Pending",
-    aiRegulatoryReport: "This is the AI-generated regulatory report for Amoxicillin.",
-    aiClinicalReport: "This is the AI-generated clinical report for Amoxicillin.",
+    aiRegulatoryReport:
+      "This is the AI-generated regulatory report for Amoxicillin.",
+    aiClinicalReport:
+      "This is the AI-generated clinical report for Amoxicillin.",
   },
   // ... add other dossiers here
 ];
@@ -48,7 +63,7 @@ export default function DossierPage() {
     }
   };
 
-  const handleViewReports = (dossier: any) => {
+  const handleViewReports = (dossier: IDossier) => {
     router.push(`/user/${userId}/dossiers/${dossier.id}`); // 🆕 Navigate instead of opening modal
   };
 
@@ -60,25 +75,51 @@ export default function DossierPage() {
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-blue-50">
             <tr>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Title</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Product</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Company</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Region</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Created Date</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">AI Review</th>
-              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">Auditor Review</th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase">AI Generated Reports</th>
-              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase">Actions</th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                Title
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                Product
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                Company
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                Region
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                Created Date
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                AI Review
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase">
+                Auditor Review
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase">
+                AI Generated Reports
+              </th>
+              <th className="px-6 py-3 text-center text-xs font-semibold text-gray-700 uppercase">
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {dossiers.map((dossier) => (
               <tr key={dossier.id}>
                 <td className="px-6 py-4 whitespace-nowrap">{dossier.title}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{dossier.productName}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{dossier.companyName}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{dossier.region}</td>
-                <td className="px-6 py-4 whitespace-nowrap">{dossier.createdAt}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {dossier.productName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {dossier.companyName}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {dossier.region}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {dossier.createdAt}
+                </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <StatusBadge status={dossier.aiReviewStatus} />
                 </td>

@@ -57,7 +57,7 @@ export default function CreateDossier() {
     }
     if (mode === "form") {
       // Check if all modules are filled
-      for (let key in formData.modules) {
+      for (const key in formData.modules) {
         if (!formData.modules[key as keyof typeof formData.modules]) {
           alert(`Please fill in ${key} information.`);
           return;

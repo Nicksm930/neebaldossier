@@ -27,11 +27,6 @@ export default async function RootLayout({
             <div className="container mx-auto px-6 py-4 flex justify-between items-center">
               {/* Logo and App Name */}
               <div className="flex items-center space-x-3">
-                <img
-                  src="/logo.png" // Make sure you have a logo at /public/logo.png
-                  alt="Logo"
-                  className="h-10 w-10 rounded-full"
-                />
                 <span className="text-2xl font-bold text-blue-700 font-mono">
                   Neebal Dossier
                 </span>
@@ -62,9 +57,7 @@ export default async function RootLayout({
         )}
 
         {/* Main Content */}
-        <main className="flex-1 container mx-auto px-6 py-10">
-          {children}
-        </main>
+        <main className="flex-1 container mx-auto px-6 py-10">{children}</main>
 
         {/* Footer (Optional) */}
         {!isUserRoute && (
