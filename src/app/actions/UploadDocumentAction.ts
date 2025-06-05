@@ -1,6 +1,5 @@
 "use server";
 
-import axios from "axios";
 
 export async function uploadDocumentAction(formData: FormData) {
   try {
@@ -24,8 +23,8 @@ export async function uploadDocumentAction(formData: FormData) {
     const data = await response.json();
     console.log("Document uploaded successfully", data);
     return data;
-  } catch (error: any) {
-    console.error("Error uploading document:", error.message);
+  } catch (error) {
+    console.error("Error uploading document:", error);
     throw error;
   }
 }

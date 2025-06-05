@@ -5,11 +5,6 @@ import { useRouter } from "next/navigation";
 
 import { useState } from "react";
 
-
-// Simulate a delay (Optional, to showcase progress bar for demo purposes)
-const simulateDelay = (ms: number) =>
-  new Promise((resolve) => setTimeout(resolve, ms));
-
 export default function CreateDossier({ userId }: { userId: string }) {
   const router=useRouter()
   const [mode, setMode] = useState<"upload" | "form">("upload");
