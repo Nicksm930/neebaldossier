@@ -1,6 +1,10 @@
 import CreateDossier from "@/app/components/CreateDossier";
 
-export default  async function UserPage({ params }: { params: { id: string } }) {
+export default async function UserPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   console.log(id);
 
