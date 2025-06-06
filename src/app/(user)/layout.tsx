@@ -15,7 +15,9 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
           {/* User Dashboard Header */}
           <header className="bg-white shadow-md p-4">
             <div className="container mx-auto flex justify-between items-center">
-              <h1 className="text-2xl font-bold text-blue-700">User Dashboard</h1>
+              <h1 className="text-2xl font-bold text-blue-700">
+                User Dashboard
+              </h1>
               <nav>
                 <ul className="flex space-x-6 text-gray-600 font-medium">
                   <li className="hover:text-blue-600">
@@ -28,7 +30,11 @@ export default function UserLayout({ children }: { children: React.ReactNode }) 
                     <Link href={`/user/${id}/profile`}>Profile</Link>
                   </li>
                   <li className="hover:text-blue-600">
-                    <Link href="/logout">Logout</Link> {/* Optional: handle logout properly */}
+                    <Link href={`/user/${id}/aisearch`}>AI Search</Link>
+                  </li>
+                  <li className="hover:text-blue-600">
+                    <Link href="/logout">Logout</Link>{" "}
+                    {/* Optional: handle logout properly */}
                   </li>
                 </ul>
               </nav>

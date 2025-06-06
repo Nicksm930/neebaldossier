@@ -2,11 +2,10 @@
 
 import axios from "axios";
 import { useRouter } from "next/navigation";
-
 import { useState } from "react";
 
 export default function CreateDossier({ userId }: { userId: string }) {
-  const router=useRouter()
+  const router = useRouter();
   const [mode, setMode] = useState<"upload" | "form">("upload");
   const [formData, setFormData] = useState({
     dossierTitle: "",
@@ -24,8 +23,8 @@ export default function CreateDossier({ userId }: { userId: string }) {
   });
 
   const [fullDossierFile, setFullDossierFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState<number>(0); // <-- progress % tracker
-  const [isUploading, setIsUploading] = useState<boolean>(false); // <-- show/hide progress bar
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [isUploading, setIsUploading] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -67,25 +66,6 @@ export default function CreateDossier({ userId }: { userId: string }) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (mode === "upload" && !fullDossierFile) {
-      alert("Please upload your complete dossier PDF.");
-      return;
-    }
-
-    if (mode === "form") {
-      for (const key in formData.module_summaries) {
-        if (
-          !formData.module_summaries[
-            key as keyof typeof formData.module_summaries
-          ]
-        ) {
-          alert(`Please fill in ${key} information.`);
-          return;
-        }
-      }
-    }
-
     const formPayload = new FormData();
     formPayload.append("title", formData.dossierTitle);
     formPayload.append("product_name", formData.productName);
@@ -93,19 +73,30 @@ export default function CreateDossier({ userId }: { userId: string }) {
     formPayload.append("region", formData.region);
     formPayload.append("owner_id", String(formData.owner_id));
     formPayload.append("department", "Regulatory Affairs");
-    if (fullDossierFile) {
+
+    if (mode === "upload") {
+      if (!fullDossierFile) {
+        alert("Please upload your complete dossier file.");
+        return;
+      }
       formPayload.append("file", fullDossierFile);
+    } else {
+      // Send module_summaries as JSON string
+      formPayload.append(
+        "module_summaries",
+        JSON.stringify(formData.module_summaries)
+      );
     }
 
     try {
-      setIsUploading(true); // show progress bar
+      setIsUploading(true);
 
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/documents/`,
         formPayload,
         {
           headers: {
-            "Content-Type": "multimultipart/form-data",
+            "Content-Type": "multipart/form-data",
           },
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
@@ -117,8 +108,6 @@ export default function CreateDossier({ userId }: { userId: string }) {
         }
       );
 
-      // await simulateDelay(1000); // Simulate network delay
-
       console.log("responseObj", response.data);
       localStorage.setItem("dossierData", JSON.stringify(response.data));
 
@@ -128,8 +117,8 @@ export default function CreateDossier({ userId }: { userId: string }) {
       console.error("error", error);
       alert("Something went wrong!");
     } finally {
-      setIsUploading(false); // hide progress bar
-      setUploadProgress(0); // reset
+      setIsUploading(false);
+      setUploadProgress(0);
     }
   };
 
@@ -242,7 +231,7 @@ export default function CreateDossier({ userId }: { userId: string }) {
         {mode === "upload" ? (
           <div>
             <label className="block mb-2 font-semibold text-gray-700">
-              Upload Complete Dossier (PDF)
+              Upload Complete Dossier (PDF, DOC, DOCX, TXT)
             </label>
             <input
               type="file"
@@ -276,7 +265,6 @@ export default function CreateDossier({ userId }: { userId: string }) {
                     ]
                   }
                   onChange={(e) => handleModuleChange(e, mod.name)}
-                  required
                   className="w-full border border-gray-300 p-3 rounded-lg min-h-[150px]"
                   placeholder={`Enter ${mod.label} details...`}
                 />
