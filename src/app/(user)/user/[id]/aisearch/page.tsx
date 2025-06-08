@@ -1,11 +1,7 @@
 import AiSearch from "@/app/components/AiSearch";
 
-export default async function AISearchPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = await params;
+export default async function AISearchPage() {
+  // const { id } = await params;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 p-6 flex flex-col items-center font-sans">

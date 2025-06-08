@@ -1,14 +1,54 @@
-
-import { createUser } from "../actions/UserAction";
-import { Submit } from "./Submit";
+"use client";
+import { useState } from "react";
+import axios from "axios";
+import { useRouter } from "next/navigation";
 
 const Register = () => {
+  const router = useRouter();
+  const [formData, setFormData] = useState({
+    email: "",
+    license: "",
+    company: "",
+    password: "",
+    agreement: false,
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const username = formData.email.split("@")[0];
+    const newUser = {
+      email: formData.email,
+      licenseNo: formData.license,
+      company: formData.company,
+      password: formData.password,
+      username,
+    };
+
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_API_URL}/createUser`,
+      newUser
+    );
+
+    if (response.data) {
+      console.log("New User Created", response.data);
+      router.push(`/user/${response.data.id}`);
+    } else {
+      console.error("Invalid API Response");
+    }
+  };
+
   return (
     <div>
-      <form
-        action={createUser}
-        className="space-y-6"
-      >
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Email */}
         <div className="flex flex-col">
           <label htmlFor="email" className="mb-2 text-gray-700 font-semibold">
@@ -19,6 +59,7 @@ const Register = () => {
             name="email"
             id="email"
             required
+            onChange={handleChange}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="you@example.com"
           />
@@ -34,6 +75,7 @@ const Register = () => {
             name="license"
             id="license"
             required
+            onChange={handleChange}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Enter your License Number"
           />
@@ -49,6 +91,7 @@ const Register = () => {
             name="company"
             id="company"
             required
+            onChange={handleChange}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Pharma Corp Pvt Ltd"
           />
@@ -56,7 +99,10 @@ const Register = () => {
 
         {/* Password */}
         <div className="flex flex-col">
-          <label htmlFor="password" className="mb-2 text-gray-700 font-semibold">
+          <label
+            htmlFor="password"
+            className="mb-2 text-gray-700 font-semibold"
+          >
             Password
           </label>
           <input
@@ -64,6 +110,7 @@ const Register = () => {
             name="password"
             id="password"
             required
+            onChange={handleChange}
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="********"
           />
@@ -76,6 +123,7 @@ const Register = () => {
             name="agreement"
             id="agreement"
             required
+            onChange={handleChange}
             className="mr-3 h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
           />
           <label htmlFor="agreement" className="text-gray-700 text-sm">
@@ -88,7 +136,12 @@ const Register = () => {
         </div>
 
         {/* Submit Button */}
-        <Submit />
+        <button
+          type="submit"
+          className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+        >
+          Register
+        </button>
       </form>
     </div>
   );

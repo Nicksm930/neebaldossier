@@ -95,9 +95,6 @@ export default function CreateDossier({ userId }: { userId: string }) {
         `${process.env.NEXT_PUBLIC_API_URL}/documents/`,
         formPayload,
         {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
           onUploadProgress: (progressEvent) => {
             const percentCompleted = Math.round(
               (progressEvent.loaded * 100) / (progressEvent.total || 1)
