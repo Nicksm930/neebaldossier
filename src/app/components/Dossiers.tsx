@@ -1,5 +1,4 @@
 "use client";
-import axios from "axios";
 import { Pencil, Trash2, RefreshCcw } from "lucide-react"; // For action icons
 import { redirect } from "next/navigation";
 
@@ -14,8 +13,13 @@ interface DocumentResponseByUser {
   owner_id: number;
   file_path: string;
   isWorkFlow_created: boolean;
-  ai_status: "PENDING" | "APPROVED" | "REJECTED"; // <-- Status fixed here
-  auditor_status: "PENDING" | "APPROVED" | "REJECTED"; // <-- Status fixed here
+  ai_status:
+    | "PENDING"
+    | "IN_PROGRESS"
+    | "NEEDS_REVIEW"
+    | "APPROVED"
+    | "REJECTED"; // <-- AI status full list
+  auditor_status: "PENDING" | "APPROVED" | "REJECTED"; // <-- Auditor status
 }
 
 const Dossiers = ({
@@ -25,10 +29,17 @@ const Dossiers = ({
   dossiers: DocumentResponseByUser[];
   userId: number;
 }) => {
-  const getStatusBadge = (status: "PENDING" | "APPROVED" | "REJECTED") => {
+  // Updated badge function
+  const getStatusBadge = (
+    status: "PENDING" | "IN_PROGRESS" | "NEEDS_REVIEW" | "APPROVED" | "REJECTED"
+  ) => {
     switch (status) {
       case "PENDING":
         return "bg-yellow-100 text-yellow-800";
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-800";
+      case "NEEDS_REVIEW":
+        return "bg-orange-100 text-orange-800";
       case "APPROVED":
         return "bg-green-100 text-green-800";
       case "REJECTED":
@@ -39,17 +50,9 @@ const Dossiers = ({
   };
 
   const workflowHandler = async (dossierId: number) => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/workflow/${dossierId}`
-      );
-      console.log("response", response.data);
-    } catch (error) {
-      console.log(error);
-    }
-    redirect(`/user/${userId}/dossiers/${dossierId}/workflow`)
+    redirect(`/user/${userId}/dossiers/${dossierId}/workflow`);
   };
-  
+
   console.log(dossiers);
 
   return (
@@ -91,7 +94,7 @@ const Dossiers = ({
                     dossier.ai_status
                   )}`}
                 >
-                  {dossier.ai_status}
+                  {dossier.ai_status.replace("_", " ")}
                 </span>
               </td>
               <td className="py-4 px-6">
@@ -100,7 +103,7 @@ const Dossiers = ({
                     dossier.auditor_status
                   )}`}
                 >
-                  {dossier.auditor_status}
+                  {dossier.auditor_status.replace("_", " ")}
                 </span>
               </td>
               <td className="py-4 px-6">
@@ -113,7 +116,7 @@ const Dossiers = ({
                   }`}
                 >
                   {dossier.isWorkFlow_created
-                    ? "Workflow Create"
+                    ? "Workflow Created"
                     : "Run Workflow"}
                 </button>
               </td>
