@@ -1,4 +1,7 @@
+"use client";
+import axios from "axios";
 import { Pencil, Trash2, RefreshCcw } from "lucide-react"; // For action icons
+import { redirect } from "next/navigation";
 
 interface DocumentResponseByUser {
   id: number;
@@ -15,7 +18,13 @@ interface DocumentResponseByUser {
   auditor_status: "PENDING" | "APPROVED" | "REJECTED"; // <-- Status fixed here
 }
 
-const Dossiers = ({ dossiers }: { dossiers: DocumentResponseByUser[] }) => {
+const Dossiers = ({
+  dossiers,
+  userId,
+}: {
+  dossiers: DocumentResponseByUser[];
+  userId: number;
+}) => {
   const getStatusBadge = (status: "PENDING" | "APPROVED" | "REJECTED") => {
     switch (status) {
       case "PENDING":
@@ -29,6 +38,18 @@ const Dossiers = ({ dossiers }: { dossiers: DocumentResponseByUser[] }) => {
     }
   };
 
+  const workflowHandler = async (dossierId: number) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_API_URL}/workflow/${dossierId}`
+      );
+      console.log("response", response.data);
+    } catch (error) {
+      console.log(error);
+    }
+    redirect(`/user/${userId}/dossiers/${dossierId}/workflow`)
+  };
+  
   console.log(dossiers);
 
   return (
@@ -83,15 +104,18 @@ const Dossiers = ({ dossiers }: { dossiers: DocumentResponseByUser[] }) => {
                 </span>
               </td>
               <td className="py-4 px-6">
-                <span
+                <button
+                  onClick={() => workflowHandler(Number(dossier.id))}
                   className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
                     dossier.isWorkFlow_created
-                      ? "bg-blue-100 text-blue-800"
-                      : "bg-gray-100 text-gray-800"
+                      ? "bg-green-300 text-black"
+                      : "bg-yellow-300 text-black"
                   }`}
                 >
-                  {dossier.isWorkFlow_created ? "Created" : "Not Created"}
-                </span>
+                  {dossier.isWorkFlow_created
+                    ? "Workflow Create"
+                    : "Run Workflow"}
+                </button>
               </td>
               <td className="py-4 px-6 flex items-center gap-3">
                 <button

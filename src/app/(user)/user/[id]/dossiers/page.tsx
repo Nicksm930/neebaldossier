@@ -17,7 +17,7 @@ export default async function DossierPage({
   return (
     <>
       <div>Hello User {id}, View all your Dossiers below:</div>
-      <Dossiers dossiers={dossiersData} />
+      <Dossiers dossiers={dossiersData} userId={Number(id)} />
     </>
   );
 }
