@@ -1,6 +1,6 @@
 "use client";
 import { Pencil, Trash2, RefreshCcw } from "lucide-react"; // For action icons
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface DocumentResponseByUser {
   id: number;
@@ -29,6 +29,7 @@ const Dossiers = ({
   dossiers: DocumentResponseByUser[];
   userId: number;
 }) => {
+  const router = useRouter();
   // Updated badge function
   const getStatusBadge = (
     status: "PENDING" | "IN_PROGRESS" | "NEEDS_REVIEW" | "APPROVED" | "REJECTED"
@@ -50,7 +51,14 @@ const Dossiers = ({
   };
 
   const workflowHandler = async (dossierId: number) => {
-    redirect(`/user/${userId}/dossiers/${dossierId}/workflow`);
+    router.push(`/user/${userId}/dossiers/${dossierId}/workflow`);
+  };
+  const workflowViewer = async (dossierId: number) => {
+    router.push(`/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}`);
+  };
+
+  const editHandler = async (dossierId: number) => {
+    router.push(`/user/${userId}/dossiers/${dossierId}`);
   };
 
   console.log(dossiers);
@@ -108,22 +116,28 @@ const Dossiers = ({
               </td>
               <td className="py-4 px-6">
                 <button
-                  onClick={() => workflowHandler(Number(dossier.id))}
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${
+                  disabled={!dossier.isWorkFlow_created} // Example: disable if workflow not created
+                  onClick={() => {
+                    dossier.isWorkFlow_created
+                      ? workflowViewer(Number(dossier.id))
+                      : workflowHandler(Number(dossier.id));
+                  }}
+                  className={`inline-block px-3 py-3 rounded-full text-xs font-bold ${
                     dossier.isWorkFlow_created
                       ? "bg-green-300 text-black"
                       : "bg-yellow-300 text-black"
+                  } ${
+                    !dossier.isWorkFlow_created
+                      ? "opacity-50 cursor-not-allowed"
+                      : ""
                   }`}
-                >
-                  {dossier.isWorkFlow_created
-                    ? "Workflow Created"
-                    : "Run Workflow"}
-                </button>
+                >{dossier.isWorkFlow_created ? 'View Workflow' : 'Create Workflow'}</button>
               </td>
               <td className="py-4 px-6 flex items-center gap-3">
                 <button
                   title="Edit"
                   className="text-indigo-500 hover:text-indigo-700"
+                  onClick={() => editHandler(dossier.id)}
                 >
                   <Pencil size={18} />
                 </button>

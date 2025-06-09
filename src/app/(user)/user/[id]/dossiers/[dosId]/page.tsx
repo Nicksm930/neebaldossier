@@ -1,38 +1,27 @@
-import DossierMultiModuleReportViewer from "@/app/components/DossierMultiModuleReportViewer";
+import DossierPage from "@/app/components/DossierPage";
+import axios from "axios";
 
+type DossierViewPageProps = {
+  id: string;
+  dosId: number;
+};
 
-const allModuleReports = [
-  {
-    moduleName: "Module 1 - Administrative and Product Information",
-    status: "Pass",
-    report: `Based on the provided information, the application appears complete for Module 1 (Administrative and Product Information). Here's a breakdown of the assessment:\n\n*   **Application Form:** Form 356h is included, which is a positive indicator.\n*   **Administrative Documents:** The applicant's name (PharmaHealth Pvt Ltd), headquarters location (Mumbai, India), and manufacturing site (PharmaHealth Pvt Ltd, Plant No.3, Pune Industrial Zone) are provided. GMP certification and certificates of registration are also attached, suggesting completeness of administrative documentation.\n*   **Drug Product Details:** The drug product (Paracetamol Tablets 50mg), dosage form (oral tablet with immediate release), and proposed proprietary name (Paracetamol-PH 50) are clearly stated. Reference to IP 2020 compliance provides standards for API and finished product specifications.\n*   **Labeling:** Labeling includes the package insert, carton labels, and blister packaging, all containing necessary information like dosage instructions, contraindications, storage conditions (below 30°C), and batch number. Compliance with CDSCO (India) regulations indicates adherence to regional labeling requirements.\n\nWhile the provided information seems comprehensive, a full audit, following ICH guidelines, would require reviewing the actual documents to verify:\n\n*   **Completeness of Form 356h:** Checking that all sections of the form are filled accurately.\n*   **Validity of GMP Certification:** Ensuring the certificate is current and covers the specified manufacturing site and dosage form.\n*   **Adequacy of Package Insert:** Confirming all sections required by local regulations are included (e.g., indications, posology, adverse reactions, precautions).\n*   **Accuracy and Consistency of Labeling:** Verifying information across all labeling components (carton, blister, package insert) is consistent and accurate.\n*   **Pharmacopoeial Compliance:** Reviewing the declaration and specifications to ensure alignment with IP 2020 standards.\n*   **Proprietary Name assessment:** assessment to ensure no potential misbranding or safety risks.\n\nHowever, given the information provided, the application *appears* to meet the initial requirements of completeness for Module 1.`,
-  },
-  {
-    moduleName: "Module 2 - Summaries",
-    status: "Pass",
-    report: `The provided text indicates that Module 2 (Summaries) is compliant with ICH CTD format standards. The Quality Overall Summary (QOS) adequately details manufacturing processes, controls, and validation methods for Paracetamol Tablets 50mg, covering essential aspects of quality. The Nonclinical Summaries cover pharmacology, pharmacokinetics, and toxicology, confirming the safety profile, which is in line with ICH requirements. The Clinical Summaries include bioequivalence studies and post-market surveillance data, demonstrating efficacy and safety, which also adheres to ICH guidelines for clinical data. The text also explicitly states that the summaries are concise, well-structured, and cross-referenced with the relevant modules (3, 4, and 5), further confirming compliance with ICH CTD requirements for content and organization.`,
-  },
-  {
-    moduleName: "Module 3 - Quality (CMC)",
-    status: "Pass",
-    report: `The provided text indicates satisfactory coverage of key elements expected in Module 3 (Quality - CMC) for Paracetamol Tablets 50mg. It includes information on:\n\n*   **Drug Substance:** Mention of physical and chemical properties.\n*   **Manufacturing Process:** Mention of manufacturing process description, process controls, and validation.\n*   **Drug Product Specifications:** Inclusion of tests for identification, assay, dissolution, and impurity profile.\n*   **Stability Studies:** Conducted under accelerated and long-term conditions as per ICH guidelines, supporting a 24-month shelf life when stored below 30°C.\n*   **Documentation:** Inclusion of Certificates of Analysis (CoA) and Batch Manufacturing Records (BMRs).\n\nThese elements are crucial for demonstrating the quality, safety, and efficacy of the drug product. The provided details suggest a well-structured Module 3 that addresses the required information for assessment.`,
-  },
-  {
-    moduleName: "Module 4 - Nonclinical Study Reports",
-    status: "Pass",
-    report: `Module 4 for Paracetamol Tablets 50mg is deemed acceptable based on the provided summary. The following key elements support this conclusion:\n\n*   **Coverage of Required Studies:** The module includes reports on pharmacology (analgesic and antipyretic activities), toxicology (safety margin), genotoxicity and carcinogenicity, and pharmacokinetics (ADME). This indicates a comprehensive evaluation of the nonclinical profile.\n*   **Acceptable Outcomes:** The summary indicates that genotoxicity and carcinogenicity tests showed no significant adverse findings, which is a positive outcome for safety.\n*   **GLP Compliance:** The studies were conducted in compliance with Good Laboratory Practice (GLP) standards. This ensures data integrity, reliability, and reproducibility.\n*   **Guideline Adherence:** The studies follow OECD guidelines, indicating adherence to internationally recognized standards for nonclinical testing.\n\n**Further Considerations (Although not immediately necessary for a \"Pass\" based on the information given, these points would require verification during a full audit):**\n\n*   **Detailed Study Reports:** The \"Pass\" is based on the summary. A complete audit would require a thorough review of the full study reports to verify the accuracy of the summary and the integrity of the data.\n*   **Specific Study Designs:** A detailed review is needed to confirm the appropriateness of the study designs used for each study type (e.g., dose levels, duration, species selection).\n*   **Statistical Analyses:**  Verification that appropriate statistical methods were used and that the analyses are correctly interpreted would be necessary.\n*   **Adverse Event Reporting:** A comprehensive evaluation of all adverse events observed during toxicology studies, and their potential relevance to human safety, should be conducted.\n*   **Pharmacokinetic Parameters:** Reviewing the specific pharmacokinetic parameters (e.g., Cmax, Tmax, AUC, half-life) and their interpretation is necessary to understand the drug's behavior in the animal models.\n*   **Justification of Animal Models:** The rationale for selecting the specific animal models used in the studies should be provided and justified.\n*   **Relevance to Human Risk Assessment:** Assessment of the relevance of the nonclinical findings to human risk assessment is critical.`,
-  },
-  {
-    moduleName: "Module 5 - Clinical Study Reports",
-    status: "Pass",
-    report: `Based on the provided text, the Module 5 documentation regarding Paracetamol Tablets 50mg appears to be compliant with initial expectations. Key positive indicators include:\n\n*   **Bioequivalence:** Demonstration of bioequivalence with the reference listed drug is a critical requirement for generic medications like paracetamol.\n*   **Safety and Efficacy Data:** Compilation of data from both clinical trials and post-marketing surveillance provides a comprehensive assessment of safety and efficacy.\n*   **No Serious Adverse Effects:** The absence of reported serious adverse effects is a positive safety signal.\n*   **Favorable Benefit-Risk Assessment:** A favorable benefit-risk assessment is a crucial factor for regulatory approval and continued marketing.\n*   **ICH E3 Compliance:** Structuring clinical trial reports according to ICH E3 guidelines demonstrates adherence to established regulatory standards. Inclusion of protocols, statistical analysis plans, and informed consent forms is essential for GCP compliance.\n\n**However, a comprehensive audit would require further scrutiny of the following:**\n\n*   **Source Data Verification (SDV):** A sample of source data (e.g., patient charts) should be verified against the clinical study reports to ensure data accuracy and integrity.\n*   **Statistical Analysis Plan (SAP) Review:** The SAP should be thoroughly reviewed to confirm that the statistical methods used were appropriate and pre-specified.\n*   **Informed Consent Forms (ICFs):** ICFs should be reviewed to ensure they meet ethical and regulatory requirements, including clear explanation of risks, benefits, and alternatives.\n*   **Clinical Trial Report (CSR) Completeness:** The CSRs should be checked for completeness, including all required sections as per ICH E3.\n*   **Post-Marketing Surveillance Data:** A closer look at the post-marketing surveillance data, including reporting rates and types of adverse events, is warranted.\n*   **Bioequivalence Study Details:** Audit of bioequivalence data and statistical analyses is critical. Ensure all parameters meet regulatory acceptance criteria.\n\nAssuming these further checks confirm the information presented in the summary text, the initial assessment is positive.`,
-  },
-];
+export default async function DossierViewPage({
+  params,
+}: {
+  params: Promise<DossierViewPageProps> // ✅ No Promise
+}) {
+  const { id, dosId } =await params;
 
-export default function Page() {
-  return (
-    <div className="min-h-screen bg-gray-100 p-10">
-      <DossierMultiModuleReportViewer reports={allModuleReports} />
-    </div>
+  console.log("baseUrl", process.env.BASE_URL); // Will work fine
+
+  const response = await axios.get(
+    `${process.env.BASE_URL}/user/${id}/dossiers/${dosId}/api`
   );
+
+  const data = response.data;
+
+  const modules = data.checks; // data.checks will be modules
+
+  return <DossierPage data={data} modules={modules} />;
 }
