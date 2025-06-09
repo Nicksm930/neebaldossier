@@ -4,7 +4,7 @@ import { use, useEffect, useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 interface WorkflowCheck {
   status: "PASS" | "FAIL" | "NEED REVIEW";
   report: string | Record<string, any>;
@@ -14,7 +14,7 @@ interface WorkflowCheck {
 interface WorkflowResponse {
   workflow_id: number;
   document_id: number;
-  checks: Record<string, WorkflowCheck>;
+  checks: Record<string, WorkflowCheck> | null; // <-- note: could be null
 }
 
 export default function WorkflowPage({
@@ -92,7 +92,6 @@ export default function WorkflowPage({
     }
   };
 
-  // 🔥 FIX IS HERE
   const renderReport = (report: string | Record<string, any>) => {
     if (!report) return null;
 
@@ -169,40 +168,44 @@ export default function WorkflowPage({
       {/* Module Reviews */}
       <div className="space-y-8">
         <h2 className="text-2xl font-bold text-indigo-700">Module Reviews</h2>
-        {Object.entries(workflowData.checks).map(([key, check]) => (
-          <div
-            key={key}
-            className="bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition duration-300 transform hover:scale-[1.01]"
-          >
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold capitalize text-gray-800">
-                {key.replace(/_/g, " ")}
-              </h3>
-              <span
-                className={`flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
-                  check.status
-                )}`}
-              >
-                {getStatusIcon(check.status)}
-                {check.status}
-              </span>
-            </div>
-            <div className="space-y-5">
-              <div>
-                <h4 className="text-lg font-semibold text-indigo-600 mb-2">
-                  Report:
-                </h4>
-                {renderReport(check.report)}
+        {workflowData?.checks ? (
+          Object.entries(workflowData.checks).map(([key, check]) => (
+            <div
+              key={key}
+              className="bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition duration-300 transform hover:scale-[1.01]"
+            >
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-xl font-semibold capitalize text-gray-800">
+                  {key.replace(/_/g, " ")}
+                </h3>
+                <span
+                  className={`flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
+                    check.status
+                  )}`}
+                >
+                  {getStatusIcon(check.status)}
+                  {check.status}
+                </span>
               </div>
-              <div>
-                <h4 className="text-lg font-semibold text-indigo-600 mt-4">
-                  Comments:
-                </h4>
-                {renderComments(check.comments)}
+              <div className="space-y-5">
+                <div>
+                  <h4 className="text-lg font-semibold text-indigo-600 mb-2">
+                    Report:
+                  </h4>
+                  {renderReport(check.report)}
+                </div>
+                <div>
+                  <h4 className="text-lg font-semibold text-indigo-600 mt-4">
+                    Comments:
+                  </h4>
+                  {renderComments(check.comments)}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        ) : (
+          <div className="text-center text-gray-500">No checks available.</div>
+        )}
       </div>
     </div>
   );
