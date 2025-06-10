@@ -2,22 +2,39 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { useUser } from "../context/UserContext";
+
+export enum UserRole {
+  M1 = "ADMINISTRATIVE",
+  M2 = "SUMMARY",
+  M3 = "QUALITY",
+  M4 = "NONCLINICAL",
+  M5 = "CLINICAL",
+  ADMIN = "ADMIN",
+}
 
 const Register = () => {
+  const { setUser } = useUser();
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
     license: "",
     company: "",
     password: "",
+    role: UserRole.M1,
     agreement: false,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, type, value } = e.target;
+    const fieldValue =
+      type === "checkbox" && "checked" in e.target ? e.target.checked : value;
+
     setFormData((prev) => ({
       ...prev,
-      [name]: type === "checkbox" ? checked : value,
+      [name]: fieldValue,
     }));
   };
 
@@ -30,21 +47,30 @@ const Register = () => {
       licenseNo: formData.license,
       company: formData.company,
       password: formData.password,
+      user_role: formData.role,
       username,
     };
 
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/createUser`,
+      `${process.env.NEXT_PUBLIC_API_URL}/user`,
       newUser
     );
 
     if (response.data) {
       console.log("New User Created", response.data);
+      setUser({
+        id: response.data.id,
+        user_role: response.data.user_role,
+        email: response.data.email,
+      });
+
       router.push(`/user/${response.data.id}`);
     } else {
       console.error("Invalid API Response");
     }
   };
+
+  console.log("formdata", formData);
 
   return (
     <div>
@@ -95,6 +121,25 @@ const Register = () => {
             className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             placeholder="Pharma Corp Pvt Ltd"
           />
+        </div>
+        <div className="flex flex-col">
+          <label htmlFor="role" className="mb-2 text-gray-700 font-semibold">
+            Role
+          </label>
+          <select
+            name="role"
+            id="role"
+            value={formData.role}
+            onChange={handleChange} // ✅ Correct event handler
+            className="p-2 border rounded"
+          >
+            <option value={UserRole.M1}>{UserRole.M1}</option>
+            <option value={UserRole.M2}>{UserRole.M2}</option>
+            <option value={UserRole.M3}>{UserRole.M3}</option>
+            <option value={UserRole.M4}>{UserRole.M4}</option>
+            <option value={UserRole.M5}>{UserRole.M5}</option>
+            <option value={UserRole.ADMIN}>{UserRole.ADMIN}</option>
+          </select>
         </div>
 
         {/* Password */}

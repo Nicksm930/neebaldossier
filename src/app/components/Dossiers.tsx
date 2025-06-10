@@ -1,6 +1,7 @@
 "use client";
 import { Pencil, Trash2, RefreshCcw } from "lucide-react"; // For action icons
 import { useRouter } from "next/navigation";
+/* eslint-disable */
 
 interface DocumentResponseByUser {
   id: number;
@@ -98,7 +99,7 @@ const Dossiers = ({
               </td>
               <td className="py-4 px-6">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusBadge(
+                  className={`inline-block px-3 py-1 rounded-full text-md font-bold ${getStatusBadge(
                     dossier.ai_status
                   )}`}
                 >
@@ -107,7 +108,7 @@ const Dossiers = ({
               </td>
               <td className="py-4 px-6">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-xs font-bold ${getStatusBadge(
+                  className={`inline-block px-3 py-1 rounded-full text-md font-bold ${getStatusBadge(
                     dossier.auditor_status
                   )}`}
                 >
@@ -116,13 +117,13 @@ const Dossiers = ({
               </td>
               <td className="py-4 px-6">
                 <button
-                  disabled={!dossier.isWorkFlow_created} // Example: disable if workflow not created
+                  // Example: disable if workflow not created
                   onClick={() => {
                     dossier.isWorkFlow_created
                       ? workflowViewer(Number(dossier.id))
                       : workflowHandler(Number(dossier.id));
                   }}
-                  className={`inline-block px-3 py-3 rounded-full text-xs font-bold ${
+                  className={`inline-block px-3 py-3 rounded-full text-md font-bold ${
                     dossier.isWorkFlow_created
                       ? "bg-green-300 text-black"
                       : "bg-yellow-300 text-black"
@@ -131,7 +132,11 @@ const Dossiers = ({
                       ? "opacity-50 cursor-not-allowed"
                       : ""
                   }`}
-                >{dossier.isWorkFlow_created ? 'View Workflow' : 'Create Workflow'}</button>
+                >
+                  {dossier.isWorkFlow_created
+                    ? "View Workflow"
+                    : "Create Workflow"}
+                </button>
               </td>
               <td className="py-4 px-6 flex items-center gap-3">
                 <button

@@ -105,7 +105,7 @@ export default function WorkflowPage({
 
     if (typeof report === "object") {
       return (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 text-sm">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-gray-700 text-md">
           {Object.entries(report).map(([key, value]) => (
             <div key={key} className="flex flex-col">
               <span className="font-semibold capitalize text-indigo-600 mb-2">
@@ -140,7 +140,7 @@ export default function WorkflowPage({
     }
 
     return (
-      <ul className="list-disc ml-6 text-gray-600 text-sm space-y-1">
+      <ul className="list-disc ml-6 text-gray-600 text-md space-y-1">
         {comments.map((comment, idx) => (
           <li key={idx}>{comment}</li>
         ))}
@@ -179,7 +179,7 @@ export default function WorkflowPage({
                   {key.replace(/_/g, " ")}
                 </h3>
                 <span
-                  className={`flex items-center px-4 py-2 rounded-full text-sm font-semibold ${getStatusBadge(
+                  className={`flex items-center px-4 py-2 rounded-full text-md font-semibold ${getStatusBadge(
                     check.status
                   )}`}
                 >

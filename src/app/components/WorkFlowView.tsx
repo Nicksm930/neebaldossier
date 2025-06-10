@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable */
 
 import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 import ReactMarkdown from "react-markdown";

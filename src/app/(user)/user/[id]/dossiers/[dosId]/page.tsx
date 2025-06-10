@@ -19,9 +19,13 @@ export default async function DossierViewPage({
     `${process.env.BASE_URL}/user/${id}/dossiers/${dosId}/api`
   );
 
+  
   const data = response.data;
 
-  const modules = data.checks; // data.checks will be modules
+  console.log("data", data);
+
+  const modules = data.module_summaries; // data.checks will be modules
+  console.log("module", modules);
 
   return <DossierPage data={data} modules={modules} />;
 }
