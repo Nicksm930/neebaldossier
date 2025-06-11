@@ -1,5 +1,6 @@
 import Register from "../../components/Register";
 
+
 const RegisterPage = () => {
   return (
     <div className="flex items-center justify-center min-h-[80vh] bg-gray-50 px-6">

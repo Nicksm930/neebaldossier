@@ -2,7 +2,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import { useUser } from "../context/UserContext";
+
 
 export enum UserRole {
   M1 = "ADMINISTRATIVE",
@@ -14,7 +14,6 @@ export enum UserRole {
 }
 
 const Register = () => {
-  const { setUser } = useUser();
   const router = useRouter();
   const [formData, setFormData] = useState({
     email: "",
@@ -53,18 +52,22 @@ const Register = () => {
 
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/user`,
-      newUser
+      newUser,
+      { withCredentials: true } // <-- very important to allow cookies to be sent
     );
 
     if (response.data) {
       console.log("New User Created", response.data);
-      setUser({
-        id: response.data.id,
-        user_role: response.data.user_role,
-        email: response.data.email,
-      });
 
-      router.push(`/user/${response.data.id}`);
+      // Store only safe data (non-sensitive fields) to localStorage if you need.
+      localStorage.setItem("user", JSON.stringify(response.data));
+
+      // ✅ No longer need to store user-id or role from headers or anywhere else
+      // because they are automatically saved in browser cookies by server
+
+      router.push(
+        `/user/${response.data.id}?user-role=${response.data.user_role}`
+      );
     } else {
       console.error("Invalid API Response");
     }

@@ -8,10 +8,14 @@ type DossierViewPageProps = {
 
 export default async function DossierViewPage({
   params,
+  searchParams
 }: {
-  params: Promise<DossierViewPageProps> // ✅ No Promise
+  params: Promise<DossierViewPageProps>;
+  searchParams: Promise<{ "user-role": string }>; // ✅ No Promise
 }) {
-  const { id, dosId } =await params;
+  const { id, dosId } = await params;
+   const query = await searchParams;
+   const userRole = query["user-role"];
 
   console.log("baseUrl", process.env.BASE_URL); // Will work fine
 
@@ -19,7 +23,6 @@ export default async function DossierViewPage({
     `${process.env.BASE_URL}/user/${id}/dossiers/${dosId}/api`
   );
 
-  
   const data = response.data;
 
   console.log("data", data);
@@ -27,5 +30,5 @@ export default async function DossierViewPage({
   const modules = data.module_summaries; // data.checks will be modules
   console.log("module", modules);
 
-  return <DossierPage data={data} modules={modules} />;
+  return <DossierPage data={data} modules={modules} userRole={userRole}/>;
 }

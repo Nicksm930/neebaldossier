@@ -1,8 +1,10 @@
 "use client";
-import { Pencil, Trash2, RefreshCcw } from "lucide-react"; // For action icons
+import axios from "axios";
+import { Pencil, Trash2, RefreshCcw, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
-/* eslint-disable */
+import React, { useState } from "react";
 
+/* Interfaces */
 interface DocumentResponseByUser {
   id: number;
   title: string;
@@ -19,19 +21,38 @@ interface DocumentResponseByUser {
     | "IN_PROGRESS"
     | "NEEDS_REVIEW"
     | "APPROVED"
-    | "REJECTED"; // <-- AI status full list
-  auditor_status: "PENDING" | "APPROVED" | "REJECTED"; // <-- Auditor status
+    | "REJECTED";
+  auditor_status: "PENDING" | "APPROVED" | "REJECTED";
 }
+
+type User = {
+  id: number;
+  username: string;
+  email: string;
+  user_role: string;
+};
 
 const Dossiers = ({
   dossiers,
   userId,
+  userRole,
+  users,
 }: {
   dossiers: DocumentResponseByUser[];
   userId: number;
+  userRole: string;
+  users: User[];
 }) => {
   const router = useRouter();
-  // Updated badge function
+
+  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [selectedDossierId, setSelectedDossierId] = useState<number | null>(
+    null
+  );
+  const [assignedUsers, setAssignedUsers] = useState<{
+    [key: number]: number[];
+  }>({});
+
   const getStatusBadge = (
     status: "PENDING" | "IN_PROGRESS" | "NEEDS_REVIEW" | "APPROVED" | "REJECTED"
   ) => {
@@ -54,15 +75,42 @@ const Dossiers = ({
   const workflowHandler = async (dossierId: number) => {
     router.push(`/user/${userId}/dossiers/${dossierId}/workflow`);
   };
+
   const workflowViewer = async (dossierId: number) => {
     router.push(`/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}`);
   };
 
   const editHandler = async (dossierId: number) => {
-    router.push(`/user/${userId}/dossiers/${dossierId}`);
+    router.push(`/user/${userId}/dossiers/${dossierId}?user-role=${userRole}`);
   };
 
-  console.log(dossiers);
+  const openAssignModal = (dossierId: number) => {
+    setSelectedDossierId(dossierId);
+    setShowAssignModal(true);
+  };
+
+  const handleAssignUser = async (userIdToAssign: number) => {
+    if (selectedDossierId === null) return;
+
+    try {
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/documents/${selectedDossierId}/assign_user`,
+        {
+          user_id: userIdToAssign,
+          admin_id: userId
+        }
+      );
+      setAssignedUsers((prev) => ({
+        ...prev,
+        [selectedDossierId]: [
+          ...(prev[selectedDossierId] || []),
+          userIdToAssign,
+        ],
+      }));
+    } catch (err) {
+      console.error("Failed to assign user", err);
+    }
+  };
 
   return (
     <div className="overflow-x-auto p-6">
@@ -80,11 +128,12 @@ const Dossiers = ({
             <th className="py-4 px-6 text-left font-bold">Actions</th>
           </tr>
         </thead>
+
         <tbody className="text-gray-700 text-sm font-medium">
           {dossiers.map((dossier, index) => (
             <tr
               key={dossier.id}
-              className={`border-b border-gray-200 hover:bg-gray-50 ${
+              className={`border-b ${
                 index % 2 === 0 ? "bg-white" : "bg-gray-100"
               }`}
             >
@@ -117,20 +166,15 @@ const Dossiers = ({
               </td>
               <td className="py-4 px-6">
                 <button
-                  // Example: disable if workflow not created
                   onClick={() => {
                     dossier.isWorkFlow_created
-                      ? workflowViewer(Number(dossier.id))
-                      : workflowHandler(Number(dossier.id));
+                      ? workflowViewer(dossier.id)
+                      : workflowHandler(dossier.id);
                   }}
                   className={`inline-block px-3 py-3 rounded-full text-md font-bold ${
                     dossier.isWorkFlow_created
                       ? "bg-green-300 text-black"
                       : "bg-yellow-300 text-black"
-                  } ${
-                    !dossier.isWorkFlow_created
-                      ? "opacity-50 cursor-not-allowed"
-                      : ""
                   }`}
                 >
                   {dossier.isWorkFlow_created
@@ -138,6 +182,7 @@ const Dossiers = ({
                     : "Create Workflow"}
                 </button>
               </td>
+
               <td className="py-4 px-6 flex items-center gap-3">
                 <button
                   title="Edit"
@@ -146,23 +191,86 @@ const Dossiers = ({
                 >
                   <Pencil size={18} />
                 </button>
+
                 <button
                   title="Delete"
                   className="text-red-500 hover:text-red-700"
                 >
                   <Trash2 size={18} />
                 </button>
+
                 <button
                   title="Refresh"
                   className="text-green-500 hover:text-green-700"
                 >
                   <RefreshCcw size={18} />
                 </button>
+
+                <button
+                  title="Assign User"
+                  className="text-yellow-500 hover:text-yellow-700"
+                  onClick={() => openAssignModal(dossier.id)}
+                >
+                  <UserPlus size={18} />
+                </button>
               </td>
             </tr>
           ))}
         </tbody>
       </table>
+
+      {/* Assign User Modal */}
+      {showAssignModal && selectedDossierId !== null && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 w-[500px] shadow-xl relative">
+            <h3 className="text-xl font-bold text-indigo-700 mb-4">
+              Assign User
+            </h3>
+
+            <ul className="divide-y divide-gray-200">
+              {users
+                .filter((user) => user.user_role !== "ADMIN")
+                .map((user) => (
+                  <li
+                    key={user.id}
+                    className="flex justify-between items-center py-3"
+                  >
+                    <div>
+                      <div className="font-semibold">{user.username}</div>
+                      <div className="text-sm text-gray-500">
+                        {user.user_role}
+                      </div>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </div>
+
+                    <button
+                      disabled={assignedUsers[selectedDossierId]?.includes(
+                        user.id
+                      )}
+                      className={`px-4 py-2 rounded font-semibold ${
+                        assignedUsers[selectedDossierId]?.includes(user.id)
+                          ? "bg-green-300 text-black"
+                          : "bg-blue-500 text-white"
+                      }`}
+                      onClick={() => handleAssignUser(user.id)}
+                    >
+                      {assignedUsers[selectedDossierId]?.includes(user.id)
+                        ? "Assigned"
+                        : "Assign"}
+                    </button>
+                  </li>
+                ))}
+            </ul>
+
+            <button
+              onClick={() => setShowAssignModal(false)}
+              className="absolute top-2 right-4 text-lg text-red-500"
+            >
+              ✕
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
