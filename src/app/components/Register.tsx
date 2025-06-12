@@ -3,7 +3,6 @@ import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 
-
 export enum UserRole {
   M1 = "ADMINISTRATIVE",
   M2 = "SUMMARY",
@@ -53,18 +52,12 @@ const Register = () => {
     const response = await axios.post(
       `${process.env.NEXT_PUBLIC_API_URL}/user`,
       newUser,
-      { withCredentials: true } // <-- very important to allow cookies to be sent
+      { withCredentials: true }
     );
 
     if (response.data) {
       console.log("New User Created", response.data);
-
-      // Store only safe data (non-sensitive fields) to localStorage if you need.
       localStorage.setItem("user", JSON.stringify(response.data));
-
-      // ✅ No longer need to store user-id or role from headers or anywhere else
-      // because they are automatically saved in browser cookies by server
-
       router.push(
         `/user/${response.data.id}?user-role=${response.data.user_role}`
       );
@@ -80,7 +73,7 @@ const Register = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Email */}
         <div className="flex flex-col">
-          <label htmlFor="email" className="mb-2 text-gray-700 font-semibold">
+          <label htmlFor="email" className="mb-2 text-white font-semibold">
             Email
           </label>
           <input
@@ -89,14 +82,14 @@ const Register = () => {
             id="email"
             required
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-600 bg-[#111827] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="you@example.com"
           />
         </div>
 
         {/* License No */}
         <div className="flex flex-col">
-          <label htmlFor="license" className="mb-2 text-gray-700 font-semibold">
+          <label htmlFor="license" className="mb-2 text-white font-semibold">
             License Number
           </label>
           <input
@@ -105,14 +98,14 @@ const Register = () => {
             id="license"
             required
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-600 bg-[#111827] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="Enter your License Number"
           />
         </div>
 
         {/* Company */}
         <div className="flex flex-col">
-          <label htmlFor="company" className="mb-2 text-gray-700 font-semibold">
+          <label htmlFor="company" className="mb-2 text-white font-semibold">
             Company Name
           </label>
           <input
@@ -121,20 +114,22 @@ const Register = () => {
             id="company"
             required
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-600 bg-[#111827] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="Pharma Corp Pvt Ltd"
           />
         </div>
+
+        {/* Role */}
         <div className="flex flex-col">
-          <label htmlFor="role" className="mb-2 text-gray-700 font-semibold">
+          <label htmlFor="role" className="mb-2 text-white font-semibold">
             Role
           </label>
           <select
             name="role"
             id="role"
             value={formData.role}
-            onChange={handleChange} // ✅ Correct event handler
-            className="p-2 border rounded"
+            onChange={handleChange}
+            className="p-2 border border-gray-600 bg-[#111827] text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
           >
             <option value={UserRole.M1}>{UserRole.M1}</option>
             <option value={UserRole.M2}>{UserRole.M2}</option>
@@ -147,10 +142,7 @@ const Register = () => {
 
         {/* Password */}
         <div className="flex flex-col">
-          <label
-            htmlFor="password"
-            className="mb-2 text-gray-700 font-semibold"
-          >
+          <label htmlFor="password" className="mb-2 text-white font-semibold">
             Password
           </label>
           <input
@@ -159,7 +151,7 @@ const Register = () => {
             id="password"
             required
             onChange={handleChange}
-            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="border border-gray-600 bg-[#111827] text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="********"
           />
         </div>
@@ -172,11 +164,11 @@ const Register = () => {
             id="agreement"
             required
             onChange={handleChange}
-            className="mr-3 h-5 w-5 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
+            className="mr-3 h-5 w-5 text-[#2563eb] bg-[#111827] border-gray-600 focus:ring-[#2563eb] rounded"
           />
-          <label htmlFor="agreement" className="text-gray-700 text-sm">
+          <label htmlFor="agreement" className="text-gray-300 text-sm">
             I agree to the{" "}
-            <a href="#" className="text-blue-600 hover:underline">
+            <a href="#" className="text-[#60a5fa] hover:underline">
               terms and conditions
             </a>
             .
@@ -186,7 +178,7 @@ const Register = () => {
         {/* Submit Button */}
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700"
+          className="bg-[#2563eb] text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition"
         >
           Register
         </button>

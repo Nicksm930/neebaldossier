@@ -25,7 +25,7 @@ const Login = () => {
 
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/login`, // 🔥 replace your actual API endpoint
+        `${process.env.NEXT_PUBLIC_API_URL}/login`,
         formData
       );
 
@@ -34,10 +34,8 @@ const Login = () => {
       if (response.data.error) {
         throw new Error();
       }
-      // Example: store user data (optional)
       localStorage.setItem("user", JSON.stringify(response.data));
 
-      // Example: redirect to user dashboard
       router.push(
         `/user/${response.data.id}?user-role=${response.data.user_role}`
       );
@@ -50,14 +48,14 @@ const Login = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-2 bg-white shadow-lg p-8 rounded-lg">
-      <h2 className="text-3xl font-bold mb-6 text-center text-indigo-600">
+    <div className="max-w-md mx-auto mt-2 bg-[#1f2937] shadow-lg p-8 rounded-lg border border-gray-700">
+      <h2 className="text-3xl font-bold mb-6 text-center text-[#2563eb]">
         Login
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="flex flex-col">
-          <label htmlFor="email" className="mb-2 font-semibold">
+          <label htmlFor="email" className="mb-2 font-semibold text-white">
             Email
           </label>
           <input
@@ -67,13 +65,13 @@ const Login = () => {
             required
             value={formData.email}
             onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-gray-600 bg-[#111827] text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="you@example.com"
           />
         </div>
 
         <div className="flex flex-col">
-          <label htmlFor="password" className="mb-2 font-semibold">
+          <label htmlFor="password" className="mb-2 font-semibold text-white">
             Password
           </label>
           <input
@@ -83,14 +81,14 @@ const Login = () => {
             required
             value={formData.password}
             onChange={handleChange}
-            className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-gray-600 bg-[#111827] text-white rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
             placeholder="********"
           />
         </div>
 
         <button
           type="submit"
-          className={`w-full py-3 rounded-lg font-semibold text-white bg-indigo-600 hover:bg-indigo-700 transition ${
+          className={`w-full py-3 rounded-lg font-semibold text-white bg-[#2563eb] hover:bg-blue-700 transition ${
             loading ? "opacity-50 cursor-not-allowed" : ""
           }`}
           disabled={loading}

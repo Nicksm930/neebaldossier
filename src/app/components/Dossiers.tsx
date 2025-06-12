@@ -68,7 +68,7 @@ const Dossiers = ({
       case "REJECTED":
         return "bg-red-100 text-red-800";
       default:
-        return "bg-gray-100 text-gray-800";
+        return "bg-gray-300 text-gray-900";
     }
   };
 
@@ -89,16 +89,17 @@ const Dossiers = ({
     setShowAssignModal(true);
   };
 
+  const logHandler = (dossierId: number) => {
+    router.push(`/user/${userId}/dossiers/${dossierId}/logs`);
+  };
+
   const handleAssignUser = async (userIdToAssign: number) => {
     if (selectedDossierId === null) return;
 
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/documents/${selectedDossierId}/assign_user`,
-        {
-          user_id: userIdToAssign,
-          admin_id: userId
-        }
+        { user_id: userIdToAssign, admin_id: userId }
       );
       setAssignedUsers((prev) => ({
         ...prev,
@@ -114,27 +115,34 @@ const Dossiers = ({
 
   return (
     <div className="overflow-x-auto p-6">
-      <table className="min-w-full bg-white rounded-xl shadow-2xl overflow-hidden">
-        <thead className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white uppercase text-sm leading-normal">
+      <table className="min-w-full bg-[#1f2937] rounded-xl shadow-2xl overflow-hidden border border-gray-700">
+        <thead className="bg-gradient-to-r from-[#2563eb] to-[#1d4ed8] text-white uppercase text-md leading-normal">
           <tr>
-            <th className="py-4 px-6 text-left font-bold">Title</th>
-            <th className="py-4 px-6 text-left font-bold">Department</th>
-            <th className="py-4 px-6 text-left font-bold">File Size</th>
-            <th className="py-4 px-6 text-left font-bold">File Type</th>
-            <th className="py-4 px-6 text-left font-bold">Uploaded On</th>
-            <th className="py-4 px-6 text-left font-bold">AI Status</th>
-            <th className="py-4 px-6 text-left font-bold">Auditor Status</th>
-            <th className="py-4 px-6 text-left font-bold">Workflow Status</th>
-            <th className="py-4 px-6 text-left font-bold">Actions</th>
+            {[
+              "Title",
+              "Department",
+              "File Size",
+              "File Type",
+              "Uploaded On",
+              "Logs",
+              "AI Status",
+              "Auditor Status",
+              "Workflow Status",
+              "Actions",
+            ].map((header) => (
+              <th key={header} className="py-4 px-6 text-left font-bold">
+                {header}
+              </th>
+            ))}
           </tr>
         </thead>
 
-        <tbody className="text-gray-700 text-sm font-medium">
+        <tbody className="text-gray-300 text-md font-medium">
           {dossiers.map((dossier, index) => (
             <tr
               key={dossier.id}
-              className={`border-b ${
-                index % 2 === 0 ? "bg-white" : "bg-gray-100"
+              className={`transition duration-300 hover:bg-[#2c3e50] ${
+                index % 2 === 0 ? "bg-[#222C3C]" : "bg-[#1B2533]"
               }`}
             >
               <td className="py-4 px-6">{dossier.title}</td>
@@ -147,8 +155,16 @@ const Dossiers = ({
                 {new Date(dossier.created_at).toLocaleDateString()}
               </td>
               <td className="py-4 px-6">
+                <button
+                  onClick={() => logHandler(dossier.id)}
+                  className="px-4 py-2 bg-yellow-300 hover:bg-yellow-400 text-black font-semibold rounded-lg transition"
+                >
+                  Logs
+                </button>
+              </td>
+              <td className="py-4 px-6">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-md font-bold ${getStatusBadge(
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${getStatusBadge(
                     dossier.ai_status
                   )}`}
                 >
@@ -157,7 +173,7 @@ const Dossiers = ({
               </td>
               <td className="py-4 px-6">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-md font-bold ${getStatusBadge(
+                  className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${getStatusBadge(
                     dossier.auditor_status
                   )}`}
                 >
@@ -171,44 +187,40 @@ const Dossiers = ({
                       ? workflowViewer(dossier.id)
                       : workflowHandler(dossier.id);
                   }}
-                  className={`inline-block px-3 py-3 rounded-full text-md font-bold ${
+                  className={`px-4 py-2 rounded-full font-bold ${
                     dossier.isWorkFlow_created
                       ? "bg-green-300 text-black"
                       : "bg-yellow-300 text-black"
-                  }`}
+                  } transition`}
                 >
                   {dossier.isWorkFlow_created
                     ? "View Workflow"
                     : "Create Workflow"}
                 </button>
               </td>
-
-              <td className="py-4 px-6 flex items-center gap-3">
+              <td className="py-10 px-6 flex items-center gap-3">
                 <button
                   title="Edit"
-                  className="text-indigo-500 hover:text-indigo-700"
+                  className="text-blue-400 hover:text-blue-500 transition"
                   onClick={() => editHandler(dossier.id)}
                 >
                   <Pencil size={18} />
                 </button>
-
                 <button
                   title="Delete"
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-400 hover:text-red-500 transition"
                 >
                   <Trash2 size={18} />
                 </button>
-
                 <button
                   title="Refresh"
-                  className="text-green-500 hover:text-green-700"
+                  className="text-green-400 hover:text-green-500 transition"
                 >
                   <RefreshCcw size={18} />
                 </button>
-
                 <button
                   title="Assign User"
-                  className="text-yellow-500 hover:text-yellow-700"
+                  className="text-yellow-400 hover:text-yellow-500 transition"
                   onClick={() => openAssignModal(dossier.id)}
                 >
                   <UserPlus size={18} />
@@ -219,15 +231,15 @@ const Dossiers = ({
         </tbody>
       </table>
 
-      {/* Assign User Modal */}
+      {/* BEAUTIFIED MODAL */}
       {showAssignModal && selectedDossierId !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-[500px] shadow-xl relative">
-            <h3 className="text-xl font-bold text-indigo-700 mb-4">
+          <div className="bg-[#1f2937] rounded-lg p-6 w-[500px] shadow-2xl border border-gray-600 text-white relative">
+            <h3 className="text-2xl font-bold text-[#6175a0] mb-4">
               Assign User
             </h3>
 
-            <ul className="divide-y divide-gray-200">
+            <ul className="divide-y divide-gray-700">
               {users
                 .filter((user) => user.user_role !== "ADMIN")
                 .map((user) => (
@@ -237,20 +249,20 @@ const Dossiers = ({
                   >
                     <div>
                       <div className="font-semibold">{user.username}</div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-gray-400">
                         {user.user_role}
                       </div>
-                      <div className="text-sm text-gray-500">{user.email}</div>
+                      <div className="text-sm text-gray-400">{user.email}</div>
                     </div>
 
                     <button
                       disabled={assignedUsers[selectedDossierId]?.includes(
                         user.id
                       )}
-                      className={`px-4 py-2 rounded font-semibold ${
+                      className={`px-4 py-2 rounded font-semibold transition ${
                         assignedUsers[selectedDossierId]?.includes(user.id)
                           ? "bg-green-300 text-black"
-                          : "bg-blue-500 text-white"
+                          : "bg-blue-500 hover:bg-blue-600"
                       }`}
                       onClick={() => handleAssignUser(user.id)}
                     >
@@ -264,7 +276,7 @@ const Dossiers = ({
 
             <button
               onClick={() => setShowAssignModal(false)}
-              className="absolute top-2 right-4 text-lg text-red-500"
+              className="absolute top-2 right-4 text-lg text-red-400"
             >
               ✕
             </button>

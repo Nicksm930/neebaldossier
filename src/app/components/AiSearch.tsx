@@ -50,9 +50,9 @@ const AiSearch = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-gray-50 font-sans">
-      {/* Sticky Search Input */}
-      <div className="bg-white shadow-md p-6 sticky top-0 z-10 border-b border-gray-200">
+    <div className="min-h-screen flex flex-col bg-[#111827] font-sans text-white">
+      {/* Sticky Search Header */}
+      <div className="bg-[#1f2937] shadow-md p-6 sticky top-0 z-10 border-b border-gray-700">
         <form
           onSubmit={handleSearch}
           className="flex flex-col sm:flex-row gap-4 justify-center items-center"
@@ -62,20 +62,20 @@ const AiSearch = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="🔍 Ask a question about your dossiers..."
-            className="w-full sm:w-2/3 border border-gray-300 rounded-md p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full sm:w-2/3 border border-gray-500 rounded-lg p-3 text-sm bg-[#111827] text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
           />
           <button
             type="submit"
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-md text-sm font-medium transition duration-300"
+            className="bg-[#2563eb] hover:bg-blue-700 text-white py-3 px-6 rounded-lg text-sm font-semibold transition duration-300"
           >
             {loading ? "Searching..." : "Search"}
           </button>
         </form>
       </div>
 
-      {/* Search Results History */}
-      <div className="max-w-6xl mx-auto p-6">
+      {/* Search Results */}
+      <div className="w-11/12 max-w-[1600px] mx-auto p-8 space-y-8">
         {queryHistory.length === 0 && (
           <div className="text-center text-gray-400 mt-20 text-md">
             Enter a query to begin your dossier search.
@@ -85,66 +85,127 @@ const AiSearch = () => {
         {queryHistory.map((result, index) => (
           <div
             key={index}
-            className="p-6 mb-8 bg-white rounded-xl shadow-md border border-gray-200"
+            className="bg-[#1f2937] p-8 rounded-xl shadow-md border border-gray-700 space-y-6"
           >
             {/* Query */}
-            <h2 className="text-lg font-bold text-blue-700 mb-4 border-b pb-2">
-              🔎 Query:{" "}
-              <span className="text-gray-800">{result.query_text}</span>
-            </h2>
+            <div className="text-lg font-semibold text-[#60a5fa] mb-2">
+              🔎 Query: <span className="text-white">{result.query_text}</span>
+            </div>
 
-            {/* Answer - Split by newlines and numbered lists */}
-            <div className="text-gray-700 text-sm leading-relaxed bg-gray-50 p-4 rounded-md border mb-6 whitespace-pre-line">
-              {result.answer.split("\n").map((line, idx) => (
-                <p key={idx} className="mb-2">
-                  {line.startsWith("1.") || line.startsWith("2.") ? (
-                    <span className="font-medium text-blue-700">{line}</span>
-                  ) : (
-                    <span>{line}</span>
-                  )}
-                </p>
-              ))}
+            {/* AI Answer - Fully formatted */}
+            <div className="bg-[#111827] border text-md border-gray-700 p-6 rounded-lg text-gray-300 leading-relaxed whitespace-pre-line">
+              {result.answer.split("\n").map((line, idx) => {
+                // Handle Main Headers (** ... **)
+                if (line.startsWith("**") && line.endsWith("**")) {
+                  return (
+                    <h3
+                      key={idx}
+                      className="text-xl text-[#60a5fa] font-bold mb-4"
+                    >
+                      {line.replace(/\*\*/g, "").trim()}
+                    </h3>
+                  );
+                }
+
+                // Handle Subsection Headers (e.g. 2.3.S ...)
+                if (/^\d+(\.\d+)*\s/.test(line)) {
+                  return (
+                    <h4
+                      key={idx}
+                      className="text-lg text-[#93c5fd] font-semibold mb-2"
+                    >
+                      {line.trim()}
+                    </h4>
+                  );
+                }
+
+                // Handle Bullets (* ...)
+                if (line.startsWith("* ")) {
+                  return (
+                    <p
+                      key={idx}
+                      className="ml-4 text-white before:content-['•'] before:mr-2"
+                    >
+                      {line.substring(2).trim()}
+                    </p>
+                  );
+                }
+
+                // Handle Sub-bullets (+ ...)
+                if (line.startsWith("+ ")) {
+                  const content = line.substring(2).trim();
+                  const keyValue = content.split(/:(.+)/); // smart split
+
+                  if (keyValue.length >= 2) {
+                    return (
+                      <div key={idx} className="ml-10 flex gap-2 mb-1">
+                        <span className="font-semibold text-[#60a5fa]">
+                          {keyValue[0].trim()}:
+                        </span>
+                        <span className="text-gray-300">
+                          {keyValue[1].trim()}
+                        </span>
+                      </div>
+                    );
+                  } else {
+                    return (
+                      <p
+                        key={idx}
+                        className="ml-10 text-gray-300 before:content-['→'] before:mr-2"
+                      >
+                        {content}
+                      </p>
+                    );
+                  }
+                }
+
+                // Handle empty lines
+                if (line.trim() === "") {
+                  return <br key={idx} />;
+                }
+
+                // Default plain text
+                return (
+                  <p key={idx} className="text-gray-400 mb-1">
+                    {line}
+                  </p>
+                );
+              })}
             </div>
 
             {/* Source Documents */}
             {result.sources.length > 0 && (
               <div>
-                <h4 className="text-md font-semibold text-blue-600 mb-4">
+                <h4 className="text-md font-semibold text-[#60a5fa] mb-4">
                   📑 Source Documents ({result.sources.length})
                 </h4>
+
                 <div className="overflow-x-auto">
-                  <table className="min-w-full text-sm border-collapse border border-gray-200 rounded-lg shadow-sm">
-                    <thead className="bg-blue-100 text-blue-800 text-left">
+                  <table className="min-w-full text-md border-collapse rounded-lg shadow-sm">
+                    <thead className="bg-[#374151] text-white">
                       <tr>
-                        <th className="px-4 py-2 border">Document ID</th>
-                        <th className="px-4 py-2 border">Title</th>
-                        <th className="px-4 py-2 border">Department</th>
-                        <th className="px-4 py-2 border">Excerpt</th>
-                        <th className="px-4 py-2 border">Relevance</th>
+                        <th className="px-4 py-3 text-left">Document ID</th>
+                        <th className="px-4 py-3 text-left">Title</th>
+                        <th className="px-4 py-3 text-left">Department</th>
+                        <th className="px-4 py-3 text-left">Excerpt</th>
+                        <th className="px-4 py-3 text-left">Relevance</th>
                       </tr>
                     </thead>
                     <tbody>
                       {result.sources.map((source, sourceIndex) => (
-                        <tr
-                          key={sourceIndex}
-                          className="hover:bg-gray-50 text-gray-700 border-t"
-                        >
-                          <td className="px-4 py-2 border">
-                            {source.document_id}
-                          </td>
-                          <td className="px-4 py-2 border font-semibold text-blue-700">
+                        <tr key={sourceIndex} className="hover:bg-[#2d3748]">
+                          <td className="px-4 py-3">{source.document_id}</td>
+                          <td className="px-4 py-3 font-semibold text-[#60a5fa]">
                             {source.title || "No Title"}
                           </td>
-                          <td className="px-4 py-2 border">
-                            {source.department && source.department !== "None"
-                              ? source.department
-                              : "—"}
+                          <td className="px-4 py-3">
+                            {source.department || "—"}
                           </td>
-                          <td className="px-4 py-2 border truncate max-w-md">
+                          <td className="px-4 py-3 truncate max-w-md">
                             {source.excerpt}
                           </td>
-                          <td className="px-4 py-2 border">
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                          <td className="px-4 py-3">
+                            <span className="bg-[#60a5fa] text-black px-3 py-1 rounded-full text-xs font-semibold">
                               {(source.relevance * 100).toFixed(2)}%
                             </span>
                           </td>

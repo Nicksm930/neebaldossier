@@ -81,7 +81,6 @@ export default function CreateDossier({ userId }: { userId: string }) {
       }
       formPayload.append("file", fullDossierFile);
     } else {
-      // Send module_summaries as JSON string
       formPayload.append(
         "module_summaries",
         JSON.stringify(formData.module_summaries)
@@ -100,14 +99,11 @@ export default function CreateDossier({ userId }: { userId: string }) {
               (progressEvent.loaded * 100) / (progressEvent.total || 1)
             );
             setUploadProgress(percentCompleted);
-            console.log(`Upload Progress: ${percentCompleted}%`);
           },
         }
       );
 
-      console.log("responseObj", response.data);
       localStorage.setItem("dossierData", JSON.stringify(response.data));
-
       alert("Dossier Created Successfully!");
       router.push(`/user/${userId}/preview`);
     } catch (error) {
@@ -120,16 +116,15 @@ export default function CreateDossier({ userId }: { userId: string }) {
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-8 bg-white shadow-lg rounded-lg relative">
-      <h1 className="text-3xl font-bold text-blue-700 mb-8 text-center">
+    <div className="max-w-5xl mx-auto p-8 bg-[#1f2937] text-white shadow-lg rounded-lg relative border border-gray-700">
+      <h1 className="text-3xl font-bold text-[#2563eb] mb-8 text-center">
         Create New Dossier
       </h1>
 
-      {/* Progress Bar */}
       {isUploading && (
-        <div className="w-full bg-gray-200 h-2 rounded overflow-hidden mb-6">
+        <div className="w-full bg-gray-700 h-2 rounded overflow-hidden mb-6">
           <div
-            className="bg-blue-500 h-full transition-all duration-300"
+            className="bg-[#2563eb] h-full transition-all duration-300"
             style={{ width: `${uploadProgress}%` }}
           ></div>
         </div>
@@ -139,10 +134,10 @@ export default function CreateDossier({ userId }: { userId: string }) {
       <div className="flex justify-center mb-8">
         <button
           type="button"
-          className={`px-6 py-2 rounded-l-lg ${
+          className={`px-6 py-2 rounded-l-lg font-semibold ${
             mode === "upload"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-800"
+              ? "bg-[#2563eb] text-white"
+              : "bg-gray-700 text-gray-300"
           }`}
           onClick={() => setMode("upload")}
         >
@@ -150,10 +145,10 @@ export default function CreateDossier({ userId }: { userId: string }) {
         </button>
         <button
           type="button"
-          className={`px-6 py-2 rounded-r-lg ${
+          className={`px-6 py-2 rounded-r-lg font-semibold ${
             mode === "form"
-              ? "bg-blue-600 text-white"
-              : "bg-gray-200 text-gray-800"
+              ? "bg-[#2563eb] text-white"
+              : "bg-gray-700 text-gray-300"
           }`}
           onClick={() => setMode("form")}
         >
@@ -161,80 +156,57 @@ export default function CreateDossier({ userId }: { userId: string }) {
         </button>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Basic Info */}
-        <div>
-          <label className="block mb-2 font-semibold text-gray-700">
-            Dossier Title
-          </label>
-          <input
-            type="text"
-            name="dossierTitle"
-            value={formData.dossierTitle}
-            onChange={handleInputChange}
-            required
-            className="w-full border border-gray-300 p-3 rounded-lg"
-            placeholder="Enter Dossier Title"
-          />
-        </div>
+        {[
+          {
+            label: "Dossier Title",
+            name: "dossierTitle",
+            placeholder: "Enter Dossier Title",
+          },
+          {
+            label: "Product Name",
+            name: "productName",
+            placeholder: "Enter Product Name",
+          },
+          {
+            label: "Company Name",
+            name: "companyName",
+            placeholder: "Enter Company Name",
+          },
+          {
+            label: "Region / Country",
+            name: "region",
+            placeholder: "e.g., US, EU, India",
+          },
+        ].map((field) => (
+          <div key={field.name}>
+            <label className="block mb-2 font-semibold text-white">
+              {field.label}
+            </label>
+            <input
+              type="text"
+              name={field.name}
+              value={(formData as any)[field.name]}
+              onChange={handleInputChange}
+              required
+              className="w-full border border-gray-600 bg-[#111827] text-white p-3 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
+              placeholder={field.placeholder}
+            />
+          </div>
+        ))}
 
-        <div>
-          <label className="block mb-2 font-semibold text-gray-700">
-            Product Name
-          </label>
-          <input
-            type="text"
-            name="productName"
-            value={formData.productName}
-            onChange={handleInputChange}
-            required
-            className="w-full border border-gray-300 p-3 rounded-lg"
-            placeholder="Enter Product Name"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-semibold text-gray-700">
-            Company Name
-          </label>
-          <input
-            type="text"
-            name="companyName"
-            value={formData.companyName}
-            onChange={handleInputChange}
-            required
-            className="w-full border border-gray-300 p-3 rounded-lg"
-            placeholder="Enter Company Name"
-          />
-        </div>
-
-        <div>
-          <label className="block mb-2 font-semibold text-gray-700">
-            Region / Country
-          </label>
-          <input
-            type="text"
-            name="region"
-            value={formData.region}
-            onChange={handleInputChange}
-            required
-            className="w-full border border-gray-300 p-3 rounded-lg"
-            placeholder="e.g., US, EU, India"
-          />
-        </div>
-
-        {/* Conditional Rendering */}
+        {/* Conditional Upload OR Form Mode */}
         {mode === "upload" ? (
           <div>
-            <label className="block mb-2 font-semibold text-gray-700">
+            <label className="block mb-2 font-semibold text-white">
               Upload Complete Dossier (PDF, DOC, DOCX, TXT)
             </label>
             <input
               type="file"
               accept=".pdf, .doc, .docx, .txt"
               onChange={handleFullFileChange}
-              className="w-full border border-gray-300 p-2 rounded-lg"
+              className="w-full border border-gray-600 bg-[#111827] text-white p-2 rounded-lg"
               required
             />
           </div>
@@ -251,7 +223,7 @@ export default function CreateDossier({ userId }: { userId: string }) {
               { label: "Module 5: Clinical Study Reports", name: "module5" },
             ].map((mod) => (
               <div key={mod.name}>
-                <label className="block mb-2 font-semibold text-gray-700">
+                <label className="block mb-2 font-semibold text-white">
                   {mod.label}
                 </label>
                 <textarea
@@ -262,7 +234,7 @@ export default function CreateDossier({ userId }: { userId: string }) {
                     ]
                   }
                   onChange={(e) => handleModuleChange(e, mod.name)}
-                  className="w-full border border-gray-300 p-3 rounded-lg min-h-[150px]"
+                  className="w-full border border-gray-600 bg-[#111827] text-white p-3 rounded-lg min-h-[150px] focus:outline-none focus:ring-2 focus:ring-[#2563eb]"
                   placeholder={`Enter ${mod.label} details...`}
                 />
               </div>
@@ -270,10 +242,9 @@ export default function CreateDossier({ userId }: { userId: string }) {
           </div>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
+          className="w-full bg-[#2563eb] text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition duration-300"
         >
           Create Dossier
         </button>
