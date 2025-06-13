@@ -3,9 +3,9 @@ import LogViewer from "@/app/components/LogViewer";
 export default async function Logs({
   params,
 }: {
-  params: { id: string; dosId: string };
+  params: Promise<{ id: string; dosId: string }>;
 }) {
-  const { id, dosId } = params;
+  const { id, dosId } = await params;
 
   const response = await fetch(
     `${process.env.BASE_URL}/user/${id}/dossiers/${dosId}/logs/api`,
@@ -19,6 +19,12 @@ export default async function Logs({
 
   const logs = await response.json();
   console.log("Logs", logs.logs);
+
+  // Always ensure logs.logs is a valid array
+  const logArray: string[] = Array.isArray(logs.logs) ? logs.logs : [];
+
+  // Reverse safely without mutating original
+  const reversedLogs = [...logArray].reverse();
 
   return (
     <div className="w-11/12 max-w-[1600px] mx-auto p-8 space-y-10 text-white font-sans">
@@ -76,7 +82,7 @@ export default async function Logs({
 
       {/* Actual Logs */}
       <div className="bg-[#1f2937] p-8 rounded-xl shadow-md border border-gray-700">
-        <LogViewer logs={logs.logs.reverse()} />
+        <LogViewer logs={reversedLogs} />
       </div>
     </div>
   );

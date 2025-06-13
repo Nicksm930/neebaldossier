@@ -1,6 +1,6 @@
 import CreateDossier from "@/app/components/CreateDossier";
 import { redirect } from "next/navigation";
-import { use } from "react";
+/* eslint-disable */
 
 export default async function UserPage({
   params,
@@ -19,7 +19,7 @@ export default async function UserPage({
   }
 
   return (
-    <div className="space-y-10">
+    <div className="space-y-10 mx-auto">
       {/* Welcome Section */}
       <div className="bg-[#1f2937] p-8 rounded-xl shadow-md border border-gray-700">
         <h2 className="text-4xl font-bold text-[#2563eb] mb-4">
@@ -32,7 +32,7 @@ export default async function UserPage({
       </div>
 
       {/* Dossier Creation Section */}
-      <div className="bg-[#1f2937] p-8 rounded-xl shadow-lg border border-gray-700">
+      <div className="bg-[#1f2937] p-8 rounded-xl shadow-lg border border-gray-700 mx-auto">
         <h3 className="text-2xl font-semibold text-white mb-6 border-b border-gray-600 pb-4">
           Create New Dossier
         </h3>

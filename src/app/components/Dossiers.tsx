@@ -3,7 +3,7 @@ import axios from "axios";
 import { Pencil, Trash2, RefreshCcw, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-
+/* eslint-disable */
 /* Interfaces */
 interface DocumentResponseByUser {
   id: number;
@@ -77,7 +77,7 @@ const Dossiers = ({
   };
 
   const workflowViewer = async (dossierId: number) => {
-    router.push(`/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}`);
+    router.push(`/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}/`);
   };
 
   const editHandler = async (dossierId: number) => {

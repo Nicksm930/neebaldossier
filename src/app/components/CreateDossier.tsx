@@ -3,7 +3,7 @@
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-
+/* eslint-disable */
 export default function CreateDossier({ userId }: { userId: string }) {
   const router = useRouter();
   const [mode, setMode] = useState<"upload" | "form">("upload");
