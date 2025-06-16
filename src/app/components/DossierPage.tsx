@@ -9,17 +9,28 @@ interface DossierPageProps {
   data: { id: number };
   modules: Record<string, string>;
   userRole: string;
+  userId: number;
+}
+
+interface LogObject {
+  module: string;
+  user_role: string;
+  user_id: number;
+  text_added: string;
+  text_deleted: string;
+  timestamp: string;
 }
 
 export default function DossierPage({
   data,
   modules,
   userRole,
+  userId,
 }: DossierPageProps) {
   const [editableModules, setEditableModules] = useState(modules);
   const [originalModules, setOriginalModules] = useState(modules);
   const [loading, setLoading] = useState(false);
-  const [logs, setLogs] = useState<string[]>([]);
+  const [logs, setLogs] = useState<LogObject[]>([]);
 
   const dmp = new DiffMatchPatch();
 
@@ -43,11 +54,27 @@ export default function DossierPage({
     setEditableModules((prev) => ({ ...prev, [moduleKey]: value }));
   };
 
+  const generateLogObject = (
+    moduleKey: string,
+    inserted: string,
+    deleted: string,
+    timestamp: string
+  ): LogObject => {
+    return {
+      module: moduleKey,
+      user_role: userRole,
+      user_id: userId,
+      text_added: inserted,
+      text_deleted: deleted,
+      timestamp,
+    };
+  };
+
   const handleSave = async () => {
     setLoading(true);
     try {
       const modulesSnapshot = { ...editableModules };
-      const newLogs: string[] = [];
+      const newLogs: LogObject[] = [];
 
       Object.entries(modulesSnapshot).forEach(([moduleKey, newValue]) => {
         const previousValue = originalModules[moduleKey] || "";
@@ -66,18 +93,24 @@ export default function DossierPage({
           .map(([_, text]) => text)
           .join("");
 
-        const logText = `[${new Date().toISOString()}] --> [${moduleKey}] changed by [${userRole}] - Inserted: [${inserted}], Deleted: [${deleted}]`;
-        if (inserted.length > 0 || deleted.length > 0) newLogs.push(logText);
+        const timestamp = new Date().toISOString();
+
+        if (inserted.length > 0 || deleted.length > 0) {
+          newLogs.push(
+            generateLogObject(moduleKey, inserted, deleted, timestamp)
+          );
+        }
       });
 
-      setLogs((prevLogs) => [...prevLogs, ...newLogs]);
+      const allLogs = [...logs, ...newLogs];
+      setLogs(allLogs);
 
       await axios.patch(
         `${process.env.NEXT_PUBLIC_API_URL}/documents/${data.id}`,
         {
           updated_modules: modulesSnapshot,
           embedding_id: String(data.id),
-          logs: [...logs, ...newLogs],
+          logs: allLogs, // Send array of structured objects
         }
       );
 
@@ -93,9 +126,6 @@ export default function DossierPage({
 
   return (
     <div className="w-15/16 max-w-[2000px] mx-auto p-8 space-y-10 font-sans text-white">
-      {/* Dossier Header */}
-
-      {/* Editable Modules */}
       <div className="space-y-8">
         <h2 className="text-2xl font-bold text-[#2563eb]">Editable Modules</h2>
 

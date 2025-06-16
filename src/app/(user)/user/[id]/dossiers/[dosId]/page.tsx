@@ -81,7 +81,7 @@ export default async function DossierViewPage({
       </div>
 
       {/* Dossier Page Component Rendering */}
-      <DossierPage data={data} modules={modules} userRole={userRole} />
+      <DossierPage data={data} modules={modules} userRole={userRole} userId={Number(id)} />
     </div>
   );
 }
