@@ -37,7 +37,7 @@ export default async function UserPage({
           Create New Dossier
         </h3>
         {userRole && userRole === "ADMIN" ? (
-          <CreateDossier userId={id} />
+          <CreateDossier userId={id}  userRole={userRole} />
         ) : (
           <div className="text-red-400 font-semibold text-lg">
             User Not Registered

@@ -1,4 +1,4 @@
-import LogViewer from "@/app/components/LogViewer";
+import LogViewer, { LogEntry } from "@/app/components/LogViewer";
 
 export default async function Logs({
   params,
@@ -20,8 +20,8 @@ export default async function Logs({
   const logs = await response.json();
   console.log("Logs", logs.logs);
 
-  // Always ensure logs.logs is a valid array
-  const logArray: string[] = Array.isArray(logs.logs) ? logs.logs : [];
+  // Ensure logs.logs is array of objects (LogEntry[])
+  const logArray: LogEntry[] = Array.isArray(logs.logs) ? logs.logs : [];
 
   // Reverse safely without mutating original
   const reversedLogs = [...logArray].reverse();

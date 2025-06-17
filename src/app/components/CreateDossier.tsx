@@ -4,7 +4,13 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 /* eslint-disable */
-export default function CreateDossier({ userId }: { userId: string }) {
+export default function CreateDossier({
+  userId,
+  userRole,
+}: {
+  userId: string;
+  userRole: string;
+}) {
   const router = useRouter();
   const [mode, setMode] = useState<"upload" | "form">("upload");
   const [formData, setFormData] = useState({
@@ -105,7 +111,7 @@ export default function CreateDossier({ userId }: { userId: string }) {
 
       localStorage.setItem("dossierData", JSON.stringify(response.data));
       alert("Dossier Created Successfully!");
-      router.push(`/user/${userId}/preview`);
+      router.push(`/user/${userId}/preview?user-role=${userRole}`);
     } catch (error) {
       console.error("error", error);
       alert("Something went wrong!");

@@ -16,6 +16,7 @@ interface DocumentResponseByUser {
   owner_id: number;
   file_path: string;
   isWorkFlow_created: boolean;
+  isLogAvailable:boolean;
   ai_status:
     | "PENDING"
     | "IN_PROGRESS"
@@ -73,11 +74,13 @@ const Dossiers = ({
   };
 
   const workflowHandler = async (dossierId: number) => {
-    router.push(`/user/${userId}/dossiers/${dossierId}/workflow`);
+    router.push(`/user/${userId}/dossiers/${dossierId}/workflow?user-role=${userRole}`);
   };
 
   const workflowViewer = async (dossierId: number) => {
-    router.push(`/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}/`);
+    router.push(
+      `/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}?user-role=${userRole}`
+    );
   };
 
   const editHandler = async (dossierId: number) => {
@@ -90,7 +93,9 @@ const Dossiers = ({
   };
 
   const logHandler = (dossierId: number) => {
-    router.push(`/user/${userId}/dossiers/${dossierId}/logs`);
+    router.push(
+      `/user/${userId}/dossiers/${dossierId}/logs?user-role=${userRole}`
+    );
   };
 
   const handleAssignUser = async (userIdToAssign: number) => {
@@ -159,7 +164,7 @@ const Dossiers = ({
                   onClick={() => logHandler(dossier.id)}
                   className="px-4 py-2 bg-yellow-300 hover:bg-yellow-400 text-black font-semibold rounded-lg transition"
                 >
-                  Logs
+                  {dossier.isLogAvailable ? 'New Logs' : 'Logs'}
                 </button>
               </td>
               <td className="py-4 px-6">
