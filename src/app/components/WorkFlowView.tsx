@@ -13,7 +13,7 @@ export default function WorkFlowView({ data }: { data: any }) {
         return "bg-green-100 text-green-800";
       case "FAIL":
         return "bg-red-100 text-red-800";
-      case "NEED REVIEW":
+      case "NEED_REVIEW":
         return "bg-yellow-100 text-yellow-800";
       default:
         return "bg-gray-200 text-gray-800";
@@ -26,7 +26,7 @@ export default function WorkFlowView({ data }: { data: any }) {
         return <CheckCircle className="text-green-400 w-5 h-5 mr-2" />;
       case "FAIL":
         return <XCircle className="text-red-500 w-5 h-5 mr-2" />;
-      case "NEED REVIEW":
+      case "NEED_REVIEW":
         return <AlertTriangle className="text-yellow-400 w-5 h-5 mr-2" />;
       default:
         return null;

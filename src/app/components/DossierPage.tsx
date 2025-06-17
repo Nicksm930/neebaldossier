@@ -4,9 +4,10 @@
 import { useState } from "react";
 import axios from "axios";
 import DiffMatchPatch from "diff-match-patch";
+import { useRouter } from "next/navigation";
 
 interface DossierPageProps {
-  data: { id: number };
+  data: { id: number};
   modules: Record<string, string>;
   userRole: string;
   userId: number;
@@ -27,6 +28,7 @@ export default function DossierPage({
   userRole,
   userId,
 }: DossierPageProps) {
+  const router = useRouter();
   const [editableModules, setEditableModules] = useState(modules);
   const [originalModules, setOriginalModules] = useState(modules);
   const [loading, setLoading] = useState(false);
@@ -116,6 +118,7 @@ export default function DossierPage({
 
       setOriginalModules(modulesSnapshot);
       alert("Modules updated successfully");
+      router.push(`/user/${userId}/dossiers?user-role=${userRole}`);
     } catch (err) {
       console.error(err);
       alert("Failed to update");

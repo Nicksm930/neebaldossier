@@ -27,7 +27,7 @@ export default function UserLayout({
           <header className="bg-[#1f2937] shadow-md sticky top-0 z-50">
             <div className="container mx-auto px-8 py-5 flex justify-between items-center">
               <h1 className="text-3xl font-extrabold text-[#2563eb] tracking-wide">
-                User Dashboard
+                Dashboard
               </h1>
 
               <nav>
@@ -42,9 +42,9 @@ export default function UserLayout({
                       My Dossiers
                     </Link>
                   </li>
-                  <li className="hover:text-[#60a5fa] transition">
+                  {/* <li className="hover:text-[#60a5fa] transition">
                     <Link href={`/user/${id}/profile`}>Profile</Link>
-                  </li>
+                  </li> */}
                   <li className="hover:text-[#60a5fa] transition">
                     <Link href={`/user/${id}/aisearch?user-role=${user_role}`}>
                       AI Search

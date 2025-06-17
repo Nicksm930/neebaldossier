@@ -1,11 +1,13 @@
 "use client";
+
 import axios from "axios";
 import { Pencil, Trash2, RefreshCcw, UserPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
-/* eslint-disable */
+
 /* Interfaces */
-interface DocumentResponseByUser {
+
+export interface DocumentResponseByUser {
   id: number;
   title: string;
   description?: string;
@@ -16,74 +18,75 @@ interface DocumentResponseByUser {
   owner_id: number;
   file_path: string;
   isWorkFlow_created: boolean;
-  isLogAvailable:boolean;
-  ai_status:
-    | "PENDING"
-    | "IN_PROGRESS"
-    | "NEEDS_REVIEW"
-    | "APPROVED"
-    | "REJECTED";
+  isLogAvailable: boolean;
+  ai_status: "PENDING" | "PASS" | "IN_PROGRESS" | "NEED_REVIEW" | "FAIL";
   auditor_status: "PENDING" | "APPROVED" | "REJECTED";
 }
 
-type User = {
+export interface User {
   id: number;
   username: string;
   email: string;
   user_role: string;
-};
+}
 
-const Dossiers = ({
-  dossiers,
-  userId,
-  userRole,
-  users,
-}: {
+interface DossiersProps {
   dossiers: DocumentResponseByUser[];
   userId: number;
   userRole: string;
   users: User[];
+}
+
+const Dossiers: React.FC<DossiersProps> = ({
+  dossiers,
+  userId,
+  userRole,
+  users,
 }) => {
   const router = useRouter();
 
-  const [showAssignModal, setShowAssignModal] = useState(false);
+  const [showAssignModal, setShowAssignModal] = useState<boolean>(false);
   const [selectedDossierId, setSelectedDossierId] = useState<number | null>(
     null
   );
-  const [assignedUsers, setAssignedUsers] = useState<{
-    [key: number]: number[];
-  }>({});
+  const [assignedUsers, setAssignedUsers] = useState<Record<number, number[]>>(
+    {}
+  );
 
-  const getStatusBadge = (
-    status: "PENDING" | "IN_PROGRESS" | "NEEDS_REVIEW" | "APPROVED" | "REJECTED"
-  ) => {
+  const getStatusBadge = (status: string): string => {
     switch (status) {
-      case "PENDING":
-        return "bg-yellow-100 text-yellow-800";
       case "IN_PROGRESS":
-        return "bg-blue-100 text-blue-800";
-      case "NEEDS_REVIEW":
+        return "bg-blue-200 text-blue-800";
+      case "PENDING":
         return "bg-orange-100 text-orange-800";
+      case "NEED_REVIEW":
+        return "bg-orange-200 text-orange-800";
+      case "PASS":
+        return "bg-green-200 text-green-800";
+      case "FAIL":
+        return "bg-red-200 text-red-800";
       case "APPROVED":
-        return "bg-green-100 text-green-800";
+        return "bg-green-200 text-green-800";
       case "REJECTED":
-        return "bg-red-100 text-red-800";
+        return "bg-red-200 text-red-800";
       default:
         return "bg-gray-300 text-gray-900";
     }
   };
 
-  const workflowHandler = async (dossierId: number) => {
-    router.push(`/user/${userId}/dossiers/${dossierId}/workflow?user-role=${userRole}`);
+  const workflowHandler = (dossierId: number) => {
+    router.push(
+      `/user/${userId}/dossiers/${dossierId}/workflow?user-role=${userRole}`
+    );
   };
 
-  const workflowViewer = async (dossierId: number) => {
+  const workflowViewer = (dossierId: number) => {
     router.push(
       `/user/${userId}/dossiers/${dossierId}/workflow/${dossierId}?user-role=${userRole}`
     );
   };
 
-  const editHandler = async (dossierId: number) => {
+  const editHandler = (dossierId: number) => {
     router.push(`/user/${userId}/dossiers/${dossierId}?user-role=${userRole}`);
   };
 
@@ -104,8 +107,12 @@ const Dossiers = ({
     try {
       await axios.post(
         `${process.env.NEXT_PUBLIC_API_URL}/documents/${selectedDossierId}/assign_user`,
-        { user_id: userIdToAssign, admin_id: userId }
+        {
+          user_id: userIdToAssign,
+          admin_id: userId,
+        }
       );
+
       setAssignedUsers((prev) => ({
         ...prev,
         [selectedDossierId]: [
@@ -159,32 +166,40 @@ const Dossiers = ({
               <td className="py-4 px-6">
                 {new Date(dossier.created_at).toLocaleDateString()}
               </td>
+
               <td className="py-4 px-6">
                 <button
                   onClick={() => logHandler(dossier.id)}
-                  className="px-4 py-2 bg-yellow-300 hover:bg-yellow-400 text-black font-semibold rounded-lg transition"
+                  className={`flex items-center justify-center px-8 py-1 text-black font-semibold rounded-lg transition ${
+                    dossier.isLogAvailable
+                      ? "bg-green-300 hover:bg-green-400"
+                      : "bg-yellow-300 hover:bg-yellow-400"
+                  }`}
                 >
-                  {dossier.isLogAvailable ? 'New Logs' : 'Logs'}
+                  {dossier.isLogAvailable ? "New Logs" : "Logs"}
                 </button>
               </td>
+
               <td className="py-4 px-6">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${getStatusBadge(
+                  className={`inline-block px-8 py-1 rounded-full text-sm font-bold ${getStatusBadge(
                     dossier.ai_status
                   )}`}
                 >
                   {dossier.ai_status.replace("_", " ")}
                 </span>
               </td>
+
               <td className="py-4 px-6">
                 <span
-                  className={`inline-block px-3 py-1 rounded-full text-sm font-bold ${getStatusBadge(
+                  className={`inline-block px-8 py-1 rounded-full text-sm font-bold ${getStatusBadge(
                     dossier.auditor_status
                   )}`}
                 >
                   {dossier.auditor_status.replace("_", " ")}
                 </span>
               </td>
+
               <td className="py-4 px-6">
                 <button
                   onClick={() => {
@@ -192,17 +207,18 @@ const Dossiers = ({
                       ? workflowViewer(dossier.id)
                       : workflowHandler(dossier.id);
                   }}
-                  className={`px-4 py-2 rounded-full font-bold ${
+                  className={`flex items-center justify-center px-8 py-1 rounded-full font-bold transition ${
                     dossier.isWorkFlow_created
                       ? "bg-green-300 text-black"
                       : "bg-yellow-300 text-black"
-                  } transition`}
+                  }`}
                 >
                   {dossier.isWorkFlow_created
                     ? "View Workflow"
                     : "Create Workflow"}
                 </button>
               </td>
+
               <td className="py-10 px-6 flex items-center gap-3">
                 <button
                   title="Edit"
@@ -236,14 +252,13 @@ const Dossiers = ({
         </tbody>
       </table>
 
-      {/* BEAUTIFIED MODAL */}
+      {/* Assign Modal */}
       {showAssignModal && selectedDossierId !== null && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-[#1f2937] rounded-lg p-6 w-[500px] shadow-2xl border border-gray-600 text-white relative">
             <h3 className="text-2xl font-bold text-[#6175a0] mb-4">
               Assign User
             </h3>
-
             <ul className="divide-y divide-gray-700">
               {users
                 .filter((user) => user.user_role !== "ADMIN")
@@ -259,12 +274,11 @@ const Dossiers = ({
                       </div>
                       <div className="text-sm text-gray-400">{user.email}</div>
                     </div>
-
                     <button
                       disabled={assignedUsers[selectedDossierId]?.includes(
                         user.id
                       )}
-                      className={`px-4 py-2 rounded font-semibold transition ${
+                      className={`flex items-center justify-center px-5 py-3 rounded font-semibold transition ${
                         assignedUsers[selectedDossierId]?.includes(user.id)
                           ? "bg-green-300 text-black"
                           : "bg-blue-500 hover:bg-blue-600"
@@ -278,7 +292,6 @@ const Dossiers = ({
                   </li>
                 ))}
             </ul>
-
             <button
               onClick={() => setShowAssignModal(false)}
               className="absolute top-2 right-4 text-lg text-red-400"

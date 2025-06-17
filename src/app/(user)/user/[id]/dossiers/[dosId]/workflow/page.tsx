@@ -7,7 +7,7 @@ import { CheckCircle, AlertTriangle, XCircle } from "lucide-react";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 interface WorkflowCheck {
-  status: "PASS" | "FAIL" | "NEED REVIEW";
+  status: "PASS" | "FAIL" | "NEED_REVIEW";
   report: string | Record<string, any>;
   comments: string[] | string;
 }
@@ -45,6 +45,7 @@ export default function WorkflowPage({
     }
     fetchWorkflow();
   }, [dosId]);
+  console.log("Workflow data =>", workflowData);
 
   if (loading) {
     return (
@@ -68,8 +69,10 @@ export default function WorkflowPage({
         return "bg-green-100 text-green-800";
       case "FAIL":
         return "bg-red-100 text-red-800";
-      case "NEED REVIEW":
+      case "NEED_REVIEW":
         return "bg-yellow-100 text-yellow-800";
+      case "IN_PROGRESS":
+        return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-200 text-gray-800";
     }
@@ -81,10 +84,10 @@ export default function WorkflowPage({
         return <CheckCircle className="text-green-600 w-5 h-5 mr-2" />;
       case "FAIL":
         return <XCircle className="text-red-600 w-5 h-5 mr-2" />;
-      case "NEED REVIEW":
+      case "NEED_REVIEW":
         return <AlertTriangle className="text-yellow-500 w-5 h-5 mr-2" />;
       default:
-        return null;
+        return <AlertTriangle className="text-yellow-500 w-5 h-5 mr-2" />;;
     }
   };
 
